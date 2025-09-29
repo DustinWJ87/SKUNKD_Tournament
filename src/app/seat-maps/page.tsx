@@ -55,6 +55,30 @@ export default function SeatMapsPage() {
     }
   };
 
+  const deleteSeatMap = async (seatMapId: string, seatMapName: string) => {
+    if (!confirm(`Are you sure you want to delete "${seatMapName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/seat-maps/${seatMapId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete seat map");
+      }
+
+      // Refresh seat maps
+      await fetchSeatMaps();
+      alert("Seat map deleted successfully");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to delete seat map");
+      console.error("Error deleting seat map:", error);
+    }
+  };
+
   const getSeatTypeColor = (type: string) => {
     switch (type) {
       case "VIP":
@@ -213,6 +237,14 @@ export default function SeatMapsPage() {
                 >
                   View Details
                 </Link>
+                {session?.user?.role === "SUPERADMIN" && (
+                  <button
+                    onClick={() => deleteSeatMap(seatMap.id, seatMap.name)}
+                    className="rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-red-400 transition hover:border-red-500 hover:bg-red-500/20 hover:text-red-300"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))}

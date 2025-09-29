@@ -92,6 +92,69 @@ export default function AdminEventsPage() {
     }
   };
 
+  const deleteEvent = async (eventId: string, eventTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${eventTitle}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+
+        // If deletion failed due to existing registrations/teams, offer to cancel instead
+        if (errorData.error?.includes("registrations") || errorData.error?.includes("teams")) {
+          const shouldCancel = confirm(
+            `Cannot delete "${eventTitle}" because it has existing registrations or teams.\n\nWould you like to cancel the event instead? This will mark it as cancelled but preserve the data.`
+          );
+
+          if (shouldCancel) {
+            await cancelEvent(eventId, eventTitle);
+            return;
+          }
+        }
+
+        throw new Error(errorData.error || "Failed to delete event");
+      }
+
+      // Refresh events
+      await fetchEvents();
+      alert("Event deleted successfully");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to delete event");
+      console.error("Error deleting event:", error);
+    }
+  };
+
+  const cancelEvent = async (eventId: string, eventTitle: string) => {
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: "CANCELLED",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to cancel event");
+      }
+
+      // Refresh events
+      await fetchEvents();
+      alert(`Event "${eventTitle}" has been cancelled successfully`);
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to cancel event");
+      console.error("Error cancelling event:", error);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "DRAFT":
@@ -222,6 +285,14 @@ export default function AdminEventsPage() {
                 >
                   View
                 </Link>
+                {session?.user?.role === "SUPERADMIN" && (
+                  <button
+                    onClick={() => deleteEvent(event.id, event.title)}
+                    className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors"
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -230,7 +301,7 @@ export default function AdminEventsPage() {
 
       <div className="space-y-4">
         <h2 className="font-display text-xl uppercase text-white">Event Management</h2>
-        
+
         {events.length === 0 ? (
           <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-skunkd-charcoal via-skunkd-midnight to-black p-12 text-center">
             <h3 className="font-display text-2xl text-white">No Events Created</h3>
@@ -279,6 +350,22 @@ export default function AdminEventsPage() {
                     >
                       View
                     </Link>
+                    {session?.user?.role === "SUPERADMIN" && event.status !== "CANCELLED" && (
+                      <button
+                        onClick={() => cancelEvent(event.id, event.title)}
+                        className="rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-xs uppercase tracking-wide text-orange-400 transition hover:border-orange-500 hover:bg-orange-500/20 hover:text-orange-300"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    {session?.user?.role === "SUPERADMIN" && (
+                      <button
+                        onClick={() => deleteEvent(event.id, event.title)}
+                        className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-xs uppercase tracking-wide text-red-400 transition hover:border-red-500 hover:bg-red-500/20 hover:text-red-300"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
 

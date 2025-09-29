@@ -8,10 +8,10 @@ async function main() {
 
   // Create superadmin user (you)
   const superAdminUser = await prisma.user.upsert({
-    where: { email: 'you@example.com' },
+    where: { email: 'admin@skunkd.games' },
     update: {},
     create: {
-      email: 'you@example.com',
+      email: 'admin@skunkd.games',
       name: 'Super Admin',
       role: 'SUPERADMIN',
     },
@@ -142,7 +142,7 @@ async function main() {
   });
 
   console.log('✅ Database seeded successfully!');
-  console.log(`👤 Super Admin: superadmin@skunkd.com`);
+  console.log(`👤 Super Admin: admin@skunkd.games`);
   console.log(`👤 Event Organizer: admin@skunkd.com`);
   console.log(`👤 Test Player: player@skunkd.com`);
   console.log(`🎮 Created ${seats.length} seats in Main Arena`);

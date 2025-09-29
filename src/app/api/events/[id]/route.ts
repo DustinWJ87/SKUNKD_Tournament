@@ -86,7 +86,7 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    
+
     const event = await prisma.event.update({
       where: { id: params.id },
       data: body,
@@ -112,6 +112,64 @@ export async function PUT(
     console.error("Error updating event:", error);
     return NextResponse.json(
       { error: "Failed to update event" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Check if user is authenticated and has SUPERADMIN role
+    const session = await getServerSession(authOptions);
+
+    if (!session || session.user.role !== "SUPERADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized. Only superadmins can delete events." },
+        { status: 401 }
+      );
+    }
+
+    // Check if event exists
+    const existingEvent = await prisma.event.findUnique({
+      where: { id: params.id },
+      include: {
+        _count: {
+          select: {
+            registrations: true,
+            teams: true,
+          },
+        },
+      },
+    });
+
+    if (!existingEvent) {
+      return NextResponse.json(
+        { error: "Event not found" },
+        { status: 404 }
+      );
+    }
+
+    // Check if event has registrations or teams
+    if (existingEvent._count.registrations > 0 || existingEvent._count.teams > 0) {
+      return NextResponse.json(
+        { error: "Cannot delete event with existing registrations or teams. Cancel the event instead." },
+        { status: 400 }
+      );
+    }
+
+    // Delete the event
+    await prisma.event.delete({
+      where: { id: params.id },
+    });
+
+    return NextResponse.json({ message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    return NextResponse.json(
+      { error: "Failed to delete event" },
       { status: 500 }
     );
   }

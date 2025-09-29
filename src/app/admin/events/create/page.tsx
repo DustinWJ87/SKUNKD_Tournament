@@ -21,7 +21,9 @@ export default function CreateEventPage() {
     title: "",
     game: "",
     description: "",
-    maxParticipants: "",
+    maxTeams: "",
+    maxPlayers: "",
+    teamSize: "1",
     entryFee: "",
     prizePool: "",
     startDate: "",
@@ -57,7 +59,9 @@ export default function CreateEventPage() {
         },
         body: JSON.stringify({
           ...formData,
-          maxParticipants: parseInt(formData.maxParticipants),
+          maxTeams: formData.maxTeams ? parseInt(formData.maxTeams) : null,
+          maxPlayers: formData.maxPlayers ? parseInt(formData.maxPlayers) : null,
+          teamSize: parseInt(formData.teamSize),
           entryFee: parseFloat(formData.entryFee),
           prizePool: parseFloat(formData.prizePool),
           startDate: new Date(formData.startDate).toISOString(),
@@ -144,19 +148,51 @@ export default function CreateEventPage() {
               </div>
 
               <div>
-                <label htmlFor="maxParticipants" className="block text-sm font-medium text-purple-200 mb-2">
-                  Max Participants *
+                <label htmlFor="maxTeams" className="block text-sm font-medium text-purple-200 mb-2">
+                  Max Teams (Optional)
                 </label>
                 <input
                   type="number"
-                  id="maxParticipants"
-                  name="maxParticipants"
-                  required
+                  id="maxTeams"
+                  name="maxTeams"
                   min="1"
-                  value={formData.maxParticipants}
+                  value={formData.maxTeams}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
-                  placeholder="50"
+                  placeholder="16 (leave empty for unlimited)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="maxPlayers" className="block text-sm font-medium text-purple-200 mb-2">
+                  Max Players (Optional)
+                </label>
+                <input
+                  type="number"
+                  id="maxPlayers"
+                  name="maxPlayers"
+                  min="1"
+                  value={formData.maxPlayers}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
+                  placeholder="100 (leave empty for unlimited)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="teamSize" className="block text-sm font-medium text-purple-200 mb-2">
+                  Team Size *
+                </label>
+                <input
+                  type="number"
+                  id="teamSize"
+                  name="teamSize"
+                  required
+                  min="1"
+                  value={formData.teamSize}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-black/30 border border-purple-500/30 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
+                  placeholder="1"
                 />
               </div>
 

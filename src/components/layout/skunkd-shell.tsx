@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/seat-maps", label: "Seat Maps" },
   { href: "/dashboard", label: "Dashboard", authRequired: true },
   { href: "/admin", label: "Admin", adminOnly: true },
+  { href: "/admin/teams", label: "Teams", adminOnly: true },
 ];
 
 export function SkunkdShell({ children }: { children: React.ReactNode }) {
