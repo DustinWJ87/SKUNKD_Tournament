@@ -1,0 +1,232 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(PLAYER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  registrations Registration[]
+  teamMemberships TeamMember[]
+  createdEvents Event[] @relation("EventCreator")
+  createdSeatMaps SeatMap[] @relation("SeatMapCreator")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Tournament System Models
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  game        String
+  maxTeams    Int?
+  maxPlayers  Int?
+  teamSize    Int         @default(1)
+  entryFee    Float       @default(0)
+  prizePool   Float       @default(0)
+  status      EventStatus @default(DRAFT)
+  
+  // Timing
+  registrationStart DateTime
+  registrationEnd   DateTime
+  eventStart        DateTime
+  eventEnd          DateTime?
+  
+  // Relations
+  creatorId     String
+  creator       User          @relation("EventCreator", fields: [creatorId], references: [id])
+  seatMapId     String?
+  seatMap       SeatMap?      @relation(fields: [seatMapId], references: [id])
+  registrations Registration[]
+  teams         Team[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SeatMap {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  width       Int    @default(10)
+  height      Int    @default(10)
+  
+  // Relations
+  creatorId String
+  creator   User   @relation("SeatMapCreator", fields: [creatorId], references: [id])
+  seats     Seat[]
+  events    Event[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Seat {
+  id       String    @id @default(cuid())
+  row      Int
+  column   Int
+  label    String?
+  type     SeatType  @default(REGULAR)
+  status   SeatStatus @default(AVAILABLE)
+  
+  // Relations
+  seatMapId     String
+  seatMap       SeatMap        @relation(fields: [seatMapId], references: [id], onDelete: Cascade)
+  registrations Registration[]
+  
+  @@unique([seatMapId, row, column])
+}
+
+model Team {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  
+  // Relations
+  eventId String
+  event   Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  members TeamMember[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([eventId, name])
+}
+
+model TeamMember {
+  id     String           @id @default(cuid())
+  role   TeamMemberRole   @default(MEMBER)
+  status TeamMemberStatus @default(PENDING)
+  
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId String
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, teamId])
+}
+
+model Registration {
+  id     String             @id @default(cuid())
+  status RegistrationStatus @default(PENDING)
+  
+  // Relations
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  seatId  String?
+  seat    Seat?  @relation(fields: [seatId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([userId, eventId])
+}
+
+ // Enums
+enum UserRole {
+  PLAYER
+  EVENT_ORGANIZER
+  SUPERADMIN
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum SeatType {
+  REGULAR
+  VIP
+  PREMIUM
+  DISABLED
+  RESERVED
+}
+
+enum SeatStatus {
+  AVAILABLE
+  RESERVED
+  OCCUPIED
+  BLOCKED
+}
+
+enum TeamMemberRole {
+  CAPTAIN
+  MEMBER
+}
+
+enum TeamMemberStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
