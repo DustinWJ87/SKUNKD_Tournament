@@ -54,8 +54,7 @@ hover:border-skunkd-cyan hover:text-white"
             ].map((feature) => (
               <article
                 key={feature.title}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm
-transition hover:border-white/30"
+                className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition hover:border-white/30"
               >
                 <h2 className="font-display text-xl text-white">{feature.title}</h2>
                 <p className="mt-3 text-sm text-white/70">{feature.description}</p>
