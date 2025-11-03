@@ -28,8 +28,7 @@
       maxSelections?: number;
     }
 
-    export function SeatMap({ sections, onSeatSelect, selectedSeats, maxSelections = 1 }:
-SeatMapProps) {
+    export function SeatMap({ sections, onSeatSelect, selectedSeats, maxSelections = 1 }: SeatMapProps) {
       const [hoveredSeat, setHoveredSeat] = useState<string | null>(null);
 
       const handleSeatClick = (seat: Seat) => {
@@ -43,12 +42,10 @@ SeatMapProps) {
         const isHovered = hoveredSeat === seat.id;
 
         return classNames(
-          "relative w-8 h-8 rounded-lg border-2 transition-all duration-200 cursor-pointer text-xs
-font-bold flex items-center justify-center",
+          "relative w-8 h-8 rounded-lg border-2 transition-all duration-200 cursor-pointer text-xs font-bold flex items-center justify-center",
           {
             // Available seats
-            "border-white/30 bg-white/10 text-white/70 hover:border-skunkd-cyan
-hover:bg-skunkd-cyan/20 hover:text-white hover:shadow-cyan":
+            "border-white/30 bg-white/10 text-white/70 hover:border-skunkd-cyan hover:bg-skunkd-cyan/20 hover:text-white hover:shadow-cyan":
               seat.status === "available" && !isSelected,
 
             // Selected seats

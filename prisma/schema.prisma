@@ -1,0 +1,283 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// User Management
+// ==========================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  username      String    @unique
+  name          String?
+  password      String    // Hashed password
+  image         String?
+  bio           String?
+  
+  // Gaming Details
+  gamerTag      String?
+  discordId     String?
+  
+  // User Role
+  role          UserRole  @default(PLAYER)
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  emailVerified DateTime?
+  
+  // Relations
+  registrations EventRegistration[]
+  teamMemberships TeamMember[]
+  createdTeams  Team[]              @relation("TeamCreator")
+  createdEvents Event[]             @relation("EventCreator")
+  seatReservations SeatReservation[]
+  
+  @@map("users")
+}
+
+enum UserRole {
+  PLAYER
+  ADMIN
+  ORGANIZER
+}
+
+// ==========================================
+// Event Management
+// ==========================================
+
+model Event {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?  @db.Text
+  game            String   // e.g., "Apex Legends", "Valorant"
+  
+  // Event Details
+  startDate       DateTime
+  endDate         DateTime?
+  registrationStart DateTime
+  registrationEnd DateTime
+  
+  // Capacity & Rules
+  maxParticipants Int
+  teamSize        Int      @default(1) // 1 for solo, 2+ for teams
+  status          EventStatus @default(DRAFT)
+  
+  // Venue
+  venue           String?
+  venueAddress    String?
+  isOnline        Boolean  @default(false)
+  
+  // Entry
+  entryFee        Float    @default(0)
+  prizePool       Float?
+  
+  // Images
+  bannerImage     String?
+  thumbnailImage  String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  creatorId       String
+  creator         User     @relation("EventCreator", fields: [creatorId], references: [id])
+  
+  registrations   EventRegistration[]
+  seats           Seat[]
+  
+  @@map("events")
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ==========================================
+// Registration Management
+// ==========================================
+
+model EventRegistration {
+  id              String   @id @default(cuid())
+  
+  // Registration Details
+  status          RegistrationStatus @default(PENDING)
+  checkInStatus   CheckInStatus      @default(NOT_CHECKED_IN)
+  
+  // Team Info
+  teamId          String?
+  team            Team?    @relation(fields: [teamId], references: [id])
+  
+  // Payment
+  paymentStatus   PaymentStatus @default(UNPAID)
+  paymentAmount   Float?
+  
+  // Timestamps
+  registeredAt    DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  eventId         String
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([eventId, userId])
+  @@map("event_registrations")
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  WAITLIST
+  CANCELLED
+}
+
+enum CheckInStatus {
+  NOT_CHECKED_IN
+  CHECKED_IN
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+  REFUNDED
+}
+
+// ==========================================
+// Team Management
+// ==========================================
+
+model Team {
+  id              String   @id @default(cuid())
+  name            String
+  tag             String?  // Team tag/abbreviation
+  description     String?
+  logo            String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  creatorId       String
+  creator         User     @relation("TeamCreator", fields: [creatorId], references: [id])
+  
+  members         TeamMember[]
+  registrations   EventRegistration[]
+  
+  @@map("teams")
+}
+
+model TeamMember {
+  id              String   @id @default(cuid())
+  role            TeamMemberRole @default(MEMBER)
+  
+  // Timestamps
+  joinedAt        DateTime @default(now())
+  
+  // Relations
+  teamId          String
+  team            Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, userId])
+  @@map("team_members")
+}
+
+enum TeamMemberRole {
+  CAPTAIN
+  CO_CAPTAIN
+  MEMBER
+}
+
+// ==========================================
+// Seat Management
+// ==========================================
+
+model Seat {
+  id              String   @id @default(cuid())
+  
+  // Seat Identification
+  row             String   // e.g., "A", "B", "C"
+  number          Int      // Seat number in row
+  label           String   // Display label e.g., "A1", "B5"
+  
+  // Seat Type
+  type            SeatType @default(STANDARD)
+  
+  // Position (for visual layout)
+  positionX       Float?   // X coordinate for seat map
+  positionY       Float?   // Y coordinate for seat map
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  eventId         String
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  reservations    SeatReservation[]
+  
+  @@unique([eventId, row, number])
+  @@map("seats")
+}
+
+enum SeatType {
+  STANDARD
+  VIP
+  WHEELCHAIR_ACCESSIBLE
+  RESERVED
+}
+
+model SeatReservation {
+  id              String   @id @default(cuid())
+  
+  // Reservation Status
+  status          ReservationStatus @default(RESERVED)
+  
+  // Timestamps
+  reservedAt      DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  expiresAt       DateTime? // For temporary holds
+  
+  // Relations
+  seatId          String
+  seat            Seat     @relation(fields: [seatId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([seatId])
+  @@map("seat_reservations")
+}
+
+enum ReservationStatus {
+  RESERVED
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+}

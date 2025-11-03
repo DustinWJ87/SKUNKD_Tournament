@@ -1,6 +1,7 @@
     import "@/styles/globals.css";
     import type { Metadata } from "next";
     import { SkunkdShell } from "@/components/layout/skunkd-shell";
+    import { AuthProvider } from "@/components/auth/auth-provider";
 
     export const metadata: Metadata = {
       title: "Skunkd Tournaments",
@@ -15,7 +16,9 @@
       return (
         <html lang="en" className="dark">
           <body className="bg-skunkd-midnight font-body text-white">
-            <SkunkdShell>{children}</SkunkdShell>
+            <AuthProvider>
+              <SkunkdShell>{children}</SkunkdShell>
+            </AuthProvider>
           </body>
         </html>
       );

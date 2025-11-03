@@ -1,12 +1,18 @@
+    "use client"
+
     import Link from "next/link";
+    import { useSession, signOut } from "next-auth/react";
 
     const NAV_LINKS = [
       { href: "/events", label: "Events" },
+      { href: "/teams", label: "Teams" },
+      { href: "/profile", label: "Profile" },
       { href: "/seat-maps", label: "Seat Maps" },
       { href: "/admin", label: "Admin" },
     ];
 
     export function SkunkdShell({ children }: { children: React.ReactNode }) {
+      const { data: session, status } = useSession();
       return (
         <div className="relative flex min-h-screen flex-col overflow-hidden">
           <div className="pointer-events-none absolute inset-0 -z-10">
@@ -28,13 +34,49 @@ text-white/70 md:flex">
                 </Link>
               ))}
             </nav>
-            <Link
-              href="/login"
-              className="hidden rounded-full border border-white/20 px-4 py-2 text-xs uppercase
-tracking-[0.2em] text-white/70 transition hover:border-skunkd-cyan hover:text-white md:inline-flex"
-            >
-              Log In
-            </Link>
+            {status === "loading" ? (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/auth/signup"
+                  className="hidden text-xs uppercase tracking-[0.2em] text-white/70 transition hover:text-white md:inline"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/auth/signin"
+                  className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/70 transition hover:border-skunkd-cyan hover:text-white"
+                >
+                  Sign In
+                </Link>
+              </div>
+            ) : session ? (
+              <div className="flex items-center gap-4">
+                <span className="hidden text-xs uppercase tracking-[0.2em] text-white/70 md:inline">
+                  {session.user?.name || (session.user as any)?.username}
+                </span>
+                <button
+                  onClick={() => signOut()}
+                  className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/70 transition hover:border-red-500 hover:text-red-400"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/auth/signup"
+                  className="hidden text-xs uppercase tracking-[0.2em] text-white/70 transition hover:text-white md:inline"
+                >
+                  Sign Up
+                </Link>
+                <Link
+                  href="/auth/signin"
+                  className="rounded-full border border-white/20 px-4 py-2 text-xs uppercase tracking-[0.2em] text-white/70 transition hover:border-skunkd-cyan hover:text-white"
+                >
+                  Sign In
+                </Link>
+              </div>
+            )}
           </header>
 
           <main className="mx-auto w-full max-w-5xl flex-1 px-6 pb-16">{children}</main>

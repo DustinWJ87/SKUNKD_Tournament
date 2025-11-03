@@ -1,64 +1,166 @@
+    'use client'
+
+    import { useEffect, useState } from "react";
     import Link from "next/link";
 
-    const MOCK_EVENTS = [
-      {
-        id: "1",
-        name: "Skunkd Showdown: Apex Legends",
-        date: "2025-11-10",
-        seatsAvailable: 36,
-        status: "Open",
-      },
-      {
-        id: "2",
-        name: "Valorant Night Ops",
-        date: "2025-11-18",
-        seatsAvailable: 0,
-        status: "Waitlist",
-      },
-    ];
+    interface Event {
+      id: string;
+      name: string;
+      description: string | null;
+      game: string;
+      startDate: string;
+      endDate: string | null;
+      registrationStart: string;
+      registrationEnd: string;
+      maxParticipants: number;
+      teamSize: number;
+      status: string;
+      venue: string | null;
+      venueAddress: string | null;
+      isOnline: boolean;
+      entryFee: number;
+      prizePool: number | null;
+      _count?: {
+        registrations: number;
+        seats: number;
+      };
+    }
 
     export default function EventsPage() {
+      const [events, setEvents] = useState<Event[]>([]);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        fetchEvents();
+      }, []);
+
+      const fetchEvents = async () => {
+        try {
+          setLoading(true);
+          const response = await fetch('/api/events');
+          if (response.ok) {
+            const data = await response.json();
+            setEvents(data.events || []);
+          }
+        } catch (error) {
+          console.error('Failed to fetch events:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const getStatusBadge = (status: string) => {
+        switch (status) {
+          case 'REGISTRATION_OPEN':
+            return { text: 'Open', color: 'border-green-500/50 text-green-400' };
+          case 'REGISTRATION_CLOSED':
+            return { text: 'Closed', color: 'border-yellow-500/50 text-yellow-400' };
+          case 'IN_PROGRESS':
+            return { text: 'Live', color: 'border-blue-500/50 text-blue-400' };
+          case 'COMPLETED':
+            return { text: 'Completed', color: 'border-purple-500/50 text-purple-400' };
+          default:
+            return { text: status, color: 'border-white/20 text-white/70' };
+        }
+      };
+
+      const getSpotsRemaining = (event: Event) => {
+        const registered = event._count?.registrations || 0;
+        return event.maxParticipants - registered;
+      };
+
+      if (loading) {
+        return (
+          <div className="space-y-10">
+            <header className="flex flex-col gap-3">
+              <h1 className="font-display text-3xl uppercase text-white">Upcoming Events</h1>
+              <p className="text-sm uppercase tracking-[0.3em] text-white/60">
+                Reserve your seat in the arena.
+              </p>
+            </header>
+            <div className="text-center text-cyan-400">Loading events...</div>
+          </div>
+        );
+      }
+
       return (
         <div className="space-y-10">
           <header className="flex flex-col gap-3">
-            <h1 className="font-display text-3xl uppercase text-white">Upcoming Events</h1>
+            <div className="flex items-center justify-between">
+              <h1 className="font-display text-3xl uppercase text-white">Upcoming Events</h1>
+              <Link 
+                href="/events/past" 
+                className="text-sm uppercase tracking-[0.3em] text-cyan-400 hover:text-cyan-300 transition"
+              >
+                Past Tournaments →
+              </Link>
+            </div>
             <p className="text-sm uppercase tracking-[0.3em] text-white/60">
               Reserve your seat in the arena.
             </p>
           </header>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {MOCK_EVENTS.map((event) => (
-              <Link
-                key={event.id}
-                href={`/events/${event.id}`}
-                className="group flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5
-p-6 backdrop-blur-sm transition hover:border-skunkd-cyan/60"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full border border-white/20 px-3 py-1 text-xs uppercase
-tracking-[0.3em] text-white/70">
-                    {event.status}
-                  </span>
-                  <span className="text-sm text-white/70">
-                    {new Date(event.date).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
-                <h2 className="font-display text-2xl text-white">{event.name}</h2>
-                <p className="text-sm text-white/70">
-                  Seats remaining: {event.seatsAvailable}
-                </p>
-                <span className="text-xs uppercase tracking-[0.3em] text-skunkd-cyan opacity-0
-transition group-hover:opacity-100">
-                  View Details
-                </span>
-              </Link>
-            ))}
-          </div>
+          {events.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-white/70 text-lg">No events available at this time.</p>
+              <p className="text-white/50 text-sm mt-2">Check back soon for upcoming tournaments!</p>
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2">
+              {events.map((event) => {
+                const statusBadge = getStatusBadge(event.status);
+                const spotsRemaining = getSpotsRemaining(event);
+                
+                return (
+                  <Link
+                    key={event.id}
+                    href={`/events/${event.id}`}
+                    className="group flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition hover:border-skunkd-cyan/60"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`rounded-full border ${statusBadge.color} px-3 py-1 text-xs uppercase tracking-[0.3em]`}>
+                        {statusBadge.text}
+                      </span>
+                      <span className="text-sm text-white/70">
+                        {new Date(event.startDate).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    
+                    <h2 className="font-display text-2xl text-white">{event.name}</h2>
+                    
+                    <div className="flex flex-col gap-1 text-sm text-white/70">
+                      <p className="flex items-center gap-2">
+                        <span className="text-cyan-400">🎮</span> {event.game}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <span className="text-purple-400">{event.isOnline ? '🌐' : '📍'}</span>
+                        {event.isOnline ? 'Online' : event.venue || 'TBA'}
+                      </p>
+                      {event.prizePool && (
+                        <p className="flex items-center gap-2">
+                          <span className="text-yellow-400">🏆</span>
+                          ${event.prizePool.toLocaleString()} Prize Pool
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                      <p className="text-sm text-white/70">
+                        Spots remaining: <span className={spotsRemaining > 0 ? 'text-green-400' : 'text-red-400'}>{spotsRemaining}</span>
+                      </p>
+                      <span className="text-xs uppercase tracking-[0.3em] text-skunkd-cyan opacity-0 transition group-hover:opacity-100">
+                        View Details →
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
       );
     }
