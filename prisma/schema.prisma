@@ -95,6 +95,7 @@ model Event {
   
   registrations   EventRegistration[]
   seats           Seat[]
+  brackets        Bracket[]
   
   @@map("events")
 }
@@ -280,4 +281,147 @@ enum ReservationStatus {
   CONFIRMED
   CANCELLED
   EXPIRED
+}
+
+// ==========================================
+// Bracket Management
+// ==========================================
+
+model Bracket {
+  id              String   @id @default(cuid())
+  
+  // Bracket Configuration
+  name            String
+  type            BracketType @default(SINGLE_ELIMINATION)
+  status          BracketStatus @default(NOT_STARTED)
+  
+  // Bracket Settings
+  roundCount      Int      // Total number of rounds
+  currentRound    Int      @default(1)
+  thirdPlaceMatch Boolean  @default(false) // Include 3rd place match
+  
+  // Metadata
+  startedAt       DateTime?
+  completedAt     DateTime?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  eventId         String
+  event           Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  matches         BracketMatch[]
+  participants    BracketParticipant[]
+  
+  @@map("brackets")
+}
+
+enum BracketType {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  ROUND_ROBIN
+  SWISS
+}
+
+enum BracketStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model BracketMatch {
+  id              String   @id @default(cuid())
+  
+  // Match Identification
+  round           Int      // Which round (1, 2, 3, etc.)
+  matchNumber     Int      // Match number within round
+  position        Int      // Position in bracket (for ordering)
+  
+  // Match Type
+  isWinnersBracket Boolean @default(true) // For double elimination
+  isThirdPlace    Boolean @default(false)
+  
+  // Match State
+  status          MatchStatus @default(PENDING)
+  
+  // Participants (can be null if waiting for previous matches)
+  participant1Id  String?
+  participant1    BracketParticipant? @relation("Participant1", fields: [participant1Id], references: [id])
+  
+  participant2Id  String?
+  participant2    BracketParticipant? @relation("Participant2", fields: [participant2Id], references: [id])
+  
+  // Results
+  winnerId        String?
+  winner          BracketParticipant? @relation("Winner", fields: [winnerId], references: [id])
+  
+  score1          Int?     // Score for participant 1
+  score2          Int?     // Score for participant 2
+  
+  // Next Match References
+  nextMatchId     String?  // Winner goes to this match
+  nextMatch       BracketMatch? @relation("NextMatch", fields: [nextMatchId], references: [id])
+  previousMatches BracketMatch[] @relation("NextMatch")
+  
+  nextMatchLosersBracket String? // For double elimination losers
+  
+  // Schedule
+  scheduledTime   DateTime?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  bracketId       String
+  bracket         Bracket  @relation(fields: [bracketId], references: [id], onDelete: Cascade)
+  
+  @@map("bracket_matches")
+}
+
+enum MatchStatus {
+  PENDING
+  READY
+  IN_PROGRESS
+  COMPLETED
+  BYE
+}
+
+model BracketParticipant {
+  id              String   @id @default(cuid())
+  
+  // Participant Details
+  seed            Int      // Seeding position
+  name            String   // Display name (username or team name)
+  
+  // Participant Type
+  isTeam          Boolean  @default(false)
+  
+  // User or Team Reference
+  userId          String?
+  teamId          String?
+  
+  // Stats
+  wins            Int      @default(0)
+  losses          Int      @default(0)
+  finalPlacement  Int?     // Final ranking in tournament
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  bracketId       String
+  bracket         Bracket  @relation(fields: [bracketId], references: [id], onDelete: Cascade)
+  
+  matchesAsParticipant1 BracketMatch[] @relation("Participant1")
+  matchesAsParticipant2 BracketMatch[] @relation("Participant2")
+  matchesWon            BracketMatch[] @relation("Winner")
+  
+  @@unique([bracketId, seed])
+  @@map("bracket_participants")
 }

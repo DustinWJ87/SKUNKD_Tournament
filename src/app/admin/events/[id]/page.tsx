@@ -88,7 +88,7 @@ export default function AdminEventDashboard() {
       const response = await fetch(`/api/events/${eventId}`)
       if (response.ok) {
         const data = await response.json()
-        setEvent(data)
+        setEvent(data.event)
       }
     } catch (error) {
       console.error("Error fetching event:", error)
@@ -204,6 +204,12 @@ export default function AdminEventDashboard() {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
+              <Link
+                href={`/admin/events/${eventId}/brackets`}
+                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+              >
+                🏆 Brackets
+              </Link>
               <Link
                 href={`/admin/events/${eventId}/checkin`}
                 className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition-colors"

@@ -8,6 +8,9 @@ async function main() {
 
   // Clear existing data
   console.log('Clearing existing data...')
+  await prisma.bracketMatch.deleteMany()
+  await prisma.bracketParticipant.deleteMany()
+  await prisma.bracket.deleteMany()
   await prisma.seatReservation.deleteMany()
   await prisma.seat.deleteMany()
   await prisma.teamMember.deleteMany()
@@ -88,6 +91,50 @@ async function main() {
         role: 'ORGANIZER',
         gamerTag: 'EventMaster',
         bio: 'Professional tournament organizer',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'player5@example.com',
+        username: 'speedster',
+        name: 'Jordan Lee',
+        password: userPassword,
+        role: 'PLAYER',
+        gamerTag: 'SpeedDemon',
+        bio: 'Fast reflexes, faster wins',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'player6@example.com',
+        username: 'strategist',
+        name: 'Taylor Martinez',
+        password: userPassword,
+        role: 'PLAYER',
+        gamerTag: 'StrategyKing',
+        bio: 'Big brain plays only',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'player7@example.com',
+        username: 'clutchmaster',
+        name: 'Jamie Wilson',
+        password: userPassword,
+        role: 'PLAYER',
+        gamerTag: 'ClutchMaster',
+        bio: '1v5? No problem',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'player8@example.com',
+        username: 'headshot',
+        name: 'Casey Brown',
+        password: userPassword,
+        role: 'PLAYER',
+        gamerTag: 'HeadshotOnly',
+        bio: 'Aim is everything',
       },
     }),
   ])
@@ -361,18 +408,6 @@ async function main() {
     },
   })
 
-  // Individual registration
-  const registration2 = await prisma.eventRegistration.create({
-    data: {
-      eventId: event3.id, // Rocket League
-      userId: users[3].id,
-      status: 'APPROVED',
-      checkInStatus: 'NOT_CHECKED_IN',
-      paymentStatus: 'PAID',
-      paymentAmount: 15.00,
-    },
-  })
-
   // Pending registration
   const registration3 = await prisma.eventRegistration.create({
     data: {
@@ -408,14 +443,229 @@ async function main() {
     },
   })
 
+  // Create additional registrations for bracket demonstration
+  console.log('Creating additional registrations for bracket demo...')
+  
+  const registrations = []
+  
+  // Create 8 approved and checked-in registrations for event3 (Rocket League)
+  // Users 0-7 (first 8 users) will participate
+  for (let i = 0; i < 8; i++) {
+    const reg = await prisma.eventRegistration.create({
+      data: {
+        eventId: event3.id,
+        userId: users[i].id,
+        status: 'APPROVED',
+        checkInStatus: 'CHECKED_IN',
+        paymentStatus: 'PAID',
+        paymentAmount: 15.00,
+      },
+    })
+    registrations.push(reg)
+  }
+
+  // Create a bracket for the Rocket League tournament with matches
+  console.log('Creating bracket with matches...')
+  
+  const bracket = await prisma.bracket.create({
+    data: {
+      eventId: event3.id,
+      name: 'Main Bracket',
+      type: 'SINGLE_ELIMINATION',
+      status: 'IN_PROGRESS',
+      roundCount: 3, // 8 players = 3 rounds (quarterfinals, semifinals, finals)
+      currentRound: 1,
+      startedAt: new Date(),
+    },
+  })
+
+  // Create participants
+  const participants = []
+  for (let i = 0; i < 8; i++) {
+    const participant = await prisma.bracketParticipant.create({
+      data: {
+        bracketId: bracket.id,
+        userId: users[i].id,
+        seed: i + 1,
+        name: users[i].gamerTag || users[i].username,
+      },
+    })
+    participants.push(participant)
+  }
+
+  // Create matches for single elimination (8 participants = 7 matches total)
+  // Round 1: 4 matches (quarterfinals)
+  const quarterfinal1 = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 1,
+      matchNumber: 1,
+      position: 1,
+      participant1Id: participants[0].id, // Seed 1
+      participant2Id: participants[7].id, // Seed 8
+      winnerId: participants[0].id, // Seed 1 wins
+      score1: 3,
+      score2: 1,
+      status: 'COMPLETED',
+    },
+  })
+
+  const quarterfinal2 = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 1,
+      matchNumber: 2,
+      position: 2,
+      participant1Id: participants[3].id, // Seed 4
+      participant2Id: participants[4].id, // Seed 5
+      winnerId: participants[4].id, // Seed 5 wins (upset!)
+      score1: 2,
+      score2: 3,
+      status: 'COMPLETED',
+    },
+  })
+
+  const quarterfinal3 = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 1,
+      matchNumber: 3,
+      position: 3,
+      participant1Id: participants[1].id, // Seed 2
+      participant2Id: participants[6].id, // Seed 7
+      winnerId: participants[1].id, // Seed 2 wins
+      score1: 3,
+      score2: 0,
+      status: 'COMPLETED',
+    },
+  })
+
+  const quarterfinal4 = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 1,
+      matchNumber: 4,
+      position: 4,
+      participant1Id: participants[2].id, // Seed 3
+      participant2Id: participants[5].id, // Seed 6
+      status: 'IN_PROGRESS', // This match is currently happening
+    },
+  })
+
+  // Round 2: 2 matches (semifinals)
+  const semifinal1 = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 2,
+      matchNumber: 1,
+      position: 5,
+      participant1Id: participants[0].id, // Winner of QF1
+      participant2Id: participants[4].id, // Winner of QF2
+      status: 'PENDING',
+    },
+  })
+
+  const semifinal2 = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 2,
+      matchNumber: 2,
+      position: 6,
+      participant1Id: participants[1].id, // Winner of QF3
+      status: 'PENDING', // Waiting for QF4 to complete
+    },
+  })
+
+  // Round 3: 1 match (finals)
+  const final = await prisma.bracketMatch.create({
+    data: {
+      bracketId: bracket.id,
+      round: 3,
+      matchNumber: 1,
+      position: 7,
+      status: 'PENDING',
+    },
+  })
+
+  // Update matches with nextMatchId references
+  await prisma.bracketMatch.update({
+    where: { id: quarterfinal1.id },
+    data: { nextMatchId: semifinal1.id },
+  })
+
+  await prisma.bracketMatch.update({
+    where: { id: quarterfinal2.id },
+    data: { nextMatchId: semifinal1.id },
+  })
+
+  await prisma.bracketMatch.update({
+    where: { id: quarterfinal3.id },
+    data: { nextMatchId: semifinal2.id },
+  })
+
+  await prisma.bracketMatch.update({
+    where: { id: quarterfinal4.id },
+    data: { nextMatchId: semifinal2.id },
+  })
+
+  await prisma.bracketMatch.update({
+    where: { id: semifinal1.id },
+    data: { nextMatchId: final.id },
+  })
+
+  await prisma.bracketMatch.update({
+    where: { id: semifinal2.id },
+    data: { nextMatchId: final.id },
+  })
+
+  // Update participant stats
+  await prisma.bracketParticipant.update({
+    where: { id: participants[0].id },
+    data: { wins: 1, losses: 0 },
+  })
+
+  await prisma.bracketParticipant.update({
+    where: { id: participants[1].id },
+    data: { wins: 1, losses: 0 },
+  })
+
+  await prisma.bracketParticipant.update({
+    where: { id: participants[4].id },
+    data: { wins: 1, losses: 0 },
+  })
+
+  await prisma.bracketParticipant.update({
+    where: { id: participants[3].id },
+    data: { wins: 0, losses: 1 },
+  })
+
+  await prisma.bracketParticipant.update({
+    where: { id: participants[6].id },
+    data: { wins: 0, losses: 1 },
+  })
+
+  await prisma.bracketParticipant.update({
+    where: { id: participants[7].id },
+    data: { wins: 0, losses: 1 },
+  })
+
   console.log('✅ Seed completed successfully!')
   console.log('\n📊 Seeded data summary:')
-  console.log(`- Users: ${users.length + 1} (${users.length} players + 1 admin)`)
+  console.log(`- Users: ${users.length + 1} (${users.length} players/organizer + 1 admin)`)
   console.log(`- Events: 5 (4 upcoming, 1 past)`)
   console.log(`- Teams: 1`)
-  console.log(`- Registrations: 3`)
-  console.log(`- Seats: 50 for Winter Championship`)
+  console.log(`- Registrations: ${2 + registrations.length} (including bracket participants)`)
+  console.log(`- Brackets: 1 (8-player single elimination)`)
+  console.log(`- Bracket Matches: 7 (3 completed, 1 in progress, 3 pending)`)
+  console.log(`- Seats: 232 total across all events`)
   console.log(`- Seat Reservations: 2`)
+  console.log('\n🎮 Bracket Demo:')
+  console.log(`Event: ${event3.name}`)
+  console.log('Status: Quarterfinals in progress!')
+  console.log('- Match 1 (Completed): FragMaster99 defeated HeadshotOnly 3-1')
+  console.log('- Match 2 (Completed): SpeedDemon upset TankDaddy 3-2!')
+  console.log('- Match 3 (Completed): SniperQueen dominated StrategyKing 3-0')
+  console.log('- Match 4 (In Progress): HealBot3000 vs ClutchMaster')
   console.log('\n🔐 Login credentials:')
   console.log('Admin: admin@skunkd.gg / admin123')
   console.log('Player: player1@example.com / password123')
