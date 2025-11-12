@@ -73,7 +73,7 @@
         return (
           <div className="space-y-10">
             <header className="flex flex-col gap-3">
-              <h1 className="font-display text-3xl uppercase text-white">Upcoming Events</h1>
+              <h1 className="font-display text-3xl uppercase text-cyan-400">Upcoming Events</h1>
               <p className="text-sm uppercase tracking-[0.3em] text-white/60">
                 Reserve your seat in the arena.
               </p>
@@ -87,7 +87,7 @@
         <div className="space-y-6 md:space-y-10">
           <header className="flex flex-col gap-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <h1 className="font-display text-2xl md:text-3xl uppercase text-white">Upcoming Events</h1>
+              <h1 className="font-display text-2xl md:text-3xl uppercase text-cyan-400">Upcoming Events</h1>
               <Link 
                 href="/events/past" 
                 className="text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-cyan-400 hover:text-cyan-300 transition tap-target"
@@ -130,7 +130,7 @@
                       </span>
                     </div>
                     
-                    <h2 className="font-display text-xl md:text-2xl text-white line-clamp-2">{event.name}</h2>
+                    <h2 className="font-display text-xl md:text-2xl text-cyan-400 line-clamp-2">{event.name}</h2>
                     
                     <div className="flex flex-col gap-1 text-xs md:text-sm text-white/70">
                       <p className="flex items-center gap-2">

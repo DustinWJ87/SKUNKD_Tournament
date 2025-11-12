@@ -131,32 +131,24 @@ export default function TeamsPage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-700 rounded w-1/4 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-32 bg-gray-700 rounded"></div>
-              <div className="h-32 bg-gray-700 rounded"></div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-midnight-900 flex items-center justify-center">
+        <div className="text-cyan-400 text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-midnight-900 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold mb-2">My Teams</h1>
-            <p className="text-gray-400">Create and manage your tournament teams</p>
+            <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400 mb-2">My Teams</h1>
+            <p className="text-gray-400 text-sm sm:text-base">Create and manage your tournament teams</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-cyan-500/50 whitespace-nowrap text-white"
           >
             + Create Team
           </button>
@@ -164,15 +156,15 @@ export default function TeamsPage() {
 
         {/* Teams List */}
         {teams.length === 0 ? (
-          <div className="bg-gray-800/50 rounded-lg p-12 text-center">
+          <div className="bg-midnight-800 rounded-lg border border-cyan-500/20 p-12 text-center">
             <div className="text-6xl mb-4">👥</div>
-            <h3 className="text-2xl font-bold mb-2">No Teams Yet</h3>
+            <h3 className="text-2xl font-bold text-cyan-400 mb-2">No Teams Yet</h3>
             <p className="text-gray-400 mb-6">
               Create your first team to start competing in tournaments together!
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 px-6 py-3 rounded-lg font-semibold transition-all shadow-lg hover:shadow-cyan-500/50 text-white"
             >
               Create Your First Team
             </button>
@@ -181,15 +173,14 @@ export default function TeamsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((team) => {
               const userRole = getUserRole(team)
-              const primaryColor = team.primaryColor || "#9333ea"
-              const secondaryColor = team.secondaryColor || "#6b21a8"
+              const primaryColor = team.primaryColor || "#06b6d4"
+              const secondaryColor = team.secondaryColor || "#0891b2"
               
               return (
                 <Link
                   key={team.id}
                   href={`/teams/${team.id}`}
-                  className="bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700 hover:border-opacity-100 transition-all group"
-                  style={{ borderColor: primaryColor + "50" }}
+                  className="bg-midnight-800 rounded-lg overflow-hidden border border-cyan-500/20 hover:border-cyan-500/50 transition-all group hover:shadow-lg hover:shadow-cyan-500/20"
                 >
                   {team.logo && (
                     <div className="h-32 overflow-hidden relative">
@@ -207,11 +198,8 @@ export default function TeamsPage() {
                   
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3
-                          className="text-xl font-bold group-hover:opacity-80 transition-opacity"
-                          style={{ color: primaryColor }}
-                        >
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xl font-bold text-cyan-400 group-hover:text-cyan-300 transition-colors truncate">
                           {team.name}
                         </h3>
                         {team.tag && (
@@ -246,7 +234,7 @@ export default function TeamsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-4 pt-4 border-t" style={{ borderColor: secondaryColor + "40" }}>
+                    <div className="mt-4 pt-4 border-t border-cyan-500/20">
                       <div className="text-xs text-gray-500">
                         Created by {team.creator.username}
                       </div>
@@ -261,9 +249,9 @@ export default function TeamsPage() {
         {/* Create Team Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full border border-gray-700">
+            <div className="bg-midnight-800 rounded-lg p-8 max-w-md w-full border border-cyan-500/20">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Create New Team</h2>
+                <h2 className="text-2xl font-bold text-cyan-400">Create New Team</h2>
                 <button
                   onClick={() => setShowCreateModal(false)}
                   className="text-gray-400 hover:text-white"
@@ -274,37 +262,37 @@ export default function TeamsPage() {
 
               <form onSubmit={handleCreateTeam} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
                     Team Name <span className="text-red-400">*</span>
                   </label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
                     placeholder="Enter team name"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Team Tag (optional)</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Team Tag (optional)</label>
                   <input
                     type="text"
                     value={formData.tag}
                     onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
                     placeholder="e.g., SKD"
                     maxLength={10}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Description (optional)</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Description (optional)</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500 h-24 resize-none"
+                    className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 h-24 resize-none"
                     placeholder="Describe your team..."
                   />
                 </div>
@@ -313,14 +301,14 @@ export default function TeamsPage() {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="flex-1 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+                    className="flex-1 bg-midnight-700 hover:bg-midnight-600 text-white px-4 py-2 rounded-lg transition-colors border border-cyan-500/20"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-semibold transition-all text-white"
                   >
                     {creating ? "Creating..." : "Create Team"}
                   </button>

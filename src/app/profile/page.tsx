@@ -203,29 +203,29 @@ export default function ProfilePage() {
 
   if (loading || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white flex items-center justify-center">
-        <div className="text-xl">Loading profile...</div>
+      <div className="min-h-screen bg-midnight-900 flex items-center justify-center">
+        <div className="text-cyan-400 text-xl">Loading profile...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-midnight-900 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Profile Header */}
-        <div className="bg-gray-800/50 rounded-lg p-4 sm:p-8 border border-gray-700 mb-8">
+        <div className="bg-midnight-800 rounded-lg p-4 sm:p-8 border border-cyan-500/20 mb-8">
           <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
             <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-2xl sm:text-4xl font-bold flex-shrink-0">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center text-2xl sm:text-4xl font-bold text-white flex-shrink-0">
                 {profile.user.username[0].toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-3xl font-bold truncate">{profile.user.username}</h1>
+                <h1 className="text-xl sm:text-3xl font-bold text-cyan-400 truncate">{profile.user.username}</h1>
                 {profile.user.name && (
                   <p className="text-gray-400 text-base sm:text-lg truncate">{profile.user.name}</p>
                 )}
                 {profile.user.gamerTag && (
-                  <p className="text-purple-400 truncate">@{profile.user.gamerTag}</p>
+                  <p className="text-cyan-400 truncate">@{profile.user.gamerTag}</p>
                 )}
                 {profile.user.bio && !editing && (
                   <p className="text-gray-300 mt-2 text-sm sm:text-base line-clamp-2">{profile.user.bio}</p>
@@ -237,7 +237,7 @@ export default function ProfilePage() {
             </div>
             <button
               onClick={() => setEditing(!editing)}
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors whitespace-nowrap self-start sm:self-auto w-full sm:w-auto"
+              className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 px-4 py-2 rounded-lg transition-all whitespace-nowrap self-start sm:self-auto w-full sm:w-auto text-white font-semibold"
             >
               {editing ? "Cancel" : "Edit Profile"}
             </button>
@@ -245,49 +245,49 @@ export default function ProfilePage() {
 
           {/* Edit Form */}
           {editing && (
-            <form onSubmit={handleUpdateProfile} className="mt-6 pt-6 border-t border-gray-700">
+            <form onSubmit={handleUpdateProfile} className="mt-6 pt-6 border-t border-cyan-500/20">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Display Name</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Display Name</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
                     placeholder="Your name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-2">Gamer Tag</label>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Gamer Tag</label>
                   <input
                     type="text"
                     value={formData.gamerTag}
                     onChange={(e) => setFormData({ ...formData, gamerTag: e.target.value })}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
                     placeholder="Your gamer tag"
                   />
                 </div>
               </div>
               <div className="mt-4">
-                <label className="block text-sm font-medium mb-2">Bio</label>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Bio</label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500 h-24 resize-none"
+                  className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500 h-24 resize-none"
                   placeholder="Tell us about yourself..."
                 />
               </div>
               <div className="mt-4 flex gap-4">
                 <button
                   type="submit"
-                  className="bg-green-600 hover:bg-green-700 px-6 py-2 rounded-lg transition-colors"
+                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 px-6 py-2 rounded-lg transition-all font-semibold text-white"
                 >
                   Save Changes
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditing(false)}
-                  className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg transition-colors"
+                  className="bg-midnight-700 hover:bg-midnight-600 px-6 py-2 rounded-lg transition-colors border border-cyan-500/20 text-white"
                 >
                   Cancel
                 </button>
@@ -298,24 +298,24 @@ export default function ProfilePage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg p-6 border border-purple-500/30">
-            <div className="text-3xl font-bold mb-1">{profile.stats.totalEvents}</div>
+          <div className="bg-midnight-800 border border-cyan-500/20 rounded-lg p-6">
+            <div className="text-3xl font-bold mb-1 text-cyan-400">{profile.stats.totalEvents}</div>
             <div className="text-gray-400 text-sm">Total Events</div>
           </div>
-          <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-6 border border-blue-500/30">
-            <div className="text-3xl font-bold mb-1">{profile.stats.upcomingEvents}</div>
+          <div className="bg-midnight-800 border border-red-500/20 rounded-lg p-6">
+            <div className="text-3xl font-bold mb-1 text-red-400">{profile.stats.upcomingEvents}</div>
             <div className="text-gray-400 text-sm">Upcoming</div>
           </div>
-          <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg p-6 border border-green-500/30">
-            <div className="text-3xl font-bold mb-1">{profile.stats.completedEvents}</div>
+          <div className="bg-midnight-800 border border-blue-500/20 rounded-lg p-6">
+            <div className="text-3xl font-bold mb-1 text-blue-400">{profile.stats.completedEvents}</div>
             <div className="text-gray-400 text-sm">Completed</div>
           </div>
-          <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-lg p-6 border border-yellow-500/30">
-            <div className="text-3xl font-bold mb-1">{profile.stats.teamsJoined}</div>
+          <div className="bg-midnight-800 border border-green-500/20 rounded-lg p-6">
+            <div className="text-3xl font-bold mb-1 text-green-400">{profile.stats.teamsJoined}</div>
             <div className="text-gray-400 text-sm">Teams</div>
           </div>
-          <div className="bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 rounded-lg p-6 border border-cyan-500/30">
-            <div className="text-3xl font-bold mb-1">{profile.stats.checkedInEvents}</div>
+          <div className="bg-midnight-800 border border-yellow-500/20 rounded-lg p-6">
+            <div className="text-3xl font-bold mb-1 text-yellow-400">{profile.stats.checkedInEvents}</div>
             <div className="text-gray-400 text-sm">Checked In</div>
           </div>
         </div>
@@ -323,15 +323,15 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Event History */}
           <div className="lg:col-span-2">
-            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 mb-6">
-              <h2 className="text-2xl font-bold mb-4">My Registrations</h2>
+            <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20 mb-6">
+              <h2 className="text-2xl font-bold mb-4 text-cyan-400">My Registrations</h2>
               
               {profile.upcomingEvents.length === 0 && profile.pastEvents.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-400 mb-4">You haven't registered for any events yet</p>
                   <Link
                     href="/events"
-                    className="inline-block bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg transition-colors"
+                    className="inline-block bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-600 hover:to-purple-700 px-6 py-2 rounded-lg transition-all font-semibold text-white"
                   >
                     Browse Events
                   </Link>
@@ -340,29 +340,29 @@ export default function ProfilePage() {
                 <div className="space-y-6">
                   {profile.upcomingEvents.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold mb-3 text-green-400">Upcoming Events</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-cyan-400">Upcoming Events</h3>
                       <div className="space-y-3">
                         {profile.upcomingEvents.map((reg) => (
                           <div
                             key={reg.id}
-                            className="bg-gray-700/50 rounded-lg p-4 border border-gray-600 hover:border-purple-500/50 transition-all"
+                            className="bg-midnight-900 rounded-lg p-4 border border-cyan-500/20 hover:border-cyan-500/50 transition-all"
                           >
                             <div className="flex items-start justify-between gap-4">
                               <div className="flex-1">
                                 <Link
                                   href={`/events/${reg.event.id}`}
-                                  className="font-semibold hover:text-purple-400 transition-colors"
+                                  className="font-semibold hover:text-cyan-400 transition-colors text-white"
                                 >
                                   {reg.event.name}
                                 </Link>
                                 <div className="flex flex-wrap gap-2 mt-2 text-sm">
-                                  <span className="bg-purple-600/30 px-2 py-1 rounded">
+                                  <span className="bg-cyan-600/30 border border-cyan-500/30 px-2 py-1 rounded text-white">
                                     {reg.event.game}
                                   </span>
                                   {reg.event.isOnline ? (
-                                    <span className="bg-blue-600/30 px-2 py-1 rounded">Online</span>
+                                    <span className="bg-blue-600/30 border border-blue-500/30 px-2 py-1 rounded text-white">Online</span>
                                   ) : (
-                                    <span className="bg-green-600/30 px-2 py-1 rounded">
+                                    <span className="bg-green-600/30 border border-green-500/30 px-2 py-1 rounded text-white">
                                       {reg.event.venue}
                                     </span>
                                   )}
@@ -417,17 +417,17 @@ export default function ProfilePage() {
 
                   {profile.pastEvents.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-semibold mb-3 text-purple-400">Past Events</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-cyan-400">Past Events</h3>
                       <div className="space-y-2">
                         {profile.pastEvents.slice(0, 5).map((reg) => (
                           <Link
                             key={reg.id}
                             href={`/events/${reg.event.id}`}
-                            className="block bg-gray-700/30 rounded-lg p-4 hover:bg-gray-700/50 transition-colors opacity-75"
+                            className="block bg-midnight-900 rounded-lg p-4 hover:bg-midnight-700 transition-colors border border-cyan-500/20 opacity-75"
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <div className="font-semibold">{reg.event.name}</div>
+                                <div className="font-semibold text-white">{reg.event.name}</div>
                                 <div className="text-sm text-gray-400">{reg.event.game}</div>
                               </div>
                               <div className="text-sm text-gray-400">
@@ -446,12 +446,12 @@ export default function ProfilePage() {
 
           {/* Teams */}
           <div>
-            <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700">
+            <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">Teams</h2>
+                <h2 className="text-xl font-bold text-cyan-400">Teams</h2>
                 <Link
                   href="/teams"
-                  className="text-purple-400 hover:text-purple-300 text-sm"
+                  className="text-cyan-400 hover:text-cyan-300 text-sm"
                 >
                   View All
                 </Link>
@@ -464,9 +464,9 @@ export default function ProfilePage() {
                     <Link
                       key={team.id}
                       href={`/teams/${team.id}`}
-                      className="block bg-gray-700/50 rounded-lg p-4 hover:bg-gray-700 transition-colors"
+                      className="block bg-midnight-900 rounded-lg p-4 hover:bg-midnight-700 transition-colors border border-cyan-500/20"
                     >
-                      <div className="font-semibold">
+                      <div className="font-semibold text-white">
                         {team.name}
                         {team.tag && <span className="text-gray-400 text-sm ml-2">[{team.tag}]</span>}
                       </div>

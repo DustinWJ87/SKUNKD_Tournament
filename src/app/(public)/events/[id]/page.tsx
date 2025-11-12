@@ -239,7 +239,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
             >
               ← Back to Events
             </Link>
-            <h1 className="font-display text-3xl uppercase text-white">{event.name}</h1>
+            <h1 className="font-display text-3xl uppercase text-cyan-400">{event.name}</h1>
             <p className="text-white/80">{event.description || 'No description available'}</p>
             <div className="flex gap-4 items-center">
               <span className={`${getStatusColor(event.status)} font-semibold`}>

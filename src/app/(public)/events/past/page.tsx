@@ -56,12 +56,12 @@ export default function PastEventsPage() {
           <div className="flex items-center gap-4">
             <Link 
               href="/events" 
-              className="text-white/70 hover:text-white transition"
+              className="text-cyan-400 hover:text-cyan-300 transition"
             >
               ← Back to Events
             </Link>
           </div>
-          <h1 className="font-display text-3xl uppercase text-white">Past Tournaments</h1>
+          <h1 className="font-display text-3xl uppercase text-cyan-400">Past Tournaments</h1>
           <p className="text-sm uppercase tracking-[0.3em] text-white/60">
             Browse completed tournament history
           </p>
@@ -77,12 +77,12 @@ export default function PastEventsPage() {
         <div className="flex items-center gap-4">
           <Link 
             href="/events" 
-            className="text-white/70 hover:text-white transition"
+            className="text-cyan-400 hover:text-cyan-300 transition"
           >
             ← Back to Events
           </Link>
         </div>
-        <h1 className="font-display text-3xl uppercase text-white">Past Tournaments</h1>
+        <h1 className="font-display text-3xl uppercase text-cyan-400">Past Tournaments</h1>
         <p className="text-sm uppercase tracking-[0.3em] text-white/60">
           Browse completed tournament history
         </p>
@@ -117,7 +117,7 @@ export default function PastEventsPage() {
                   </span>
                 </div>
                 
-                <h2 className="font-display text-2xl text-white">{event.name}</h2>
+                <h2 className="font-display text-2xl text-cyan-400">{event.name}</h2>
                 
                 <div className="flex flex-col gap-1 text-sm text-white/70">
                   <p className="flex items-center gap-2">

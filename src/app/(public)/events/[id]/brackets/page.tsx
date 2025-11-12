@@ -100,15 +100,15 @@ export default function PublicEventBracketsPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
-            <Link href="/" className="hover:text-purple-400">
+            <Link href="/" className="hover:text-cyan-400">
               Home
             </Link>
             <span>/</span>
-            <Link href="/events" className="hover:text-purple-400">
+            <Link href="/events" className="hover:text-cyan-400">
               Events
             </Link>
             <span>/</span>
-            <Link href={`/events/${eventId}`} className="hover:text-purple-400">
+            <Link href={`/events/${eventId}`} className="hover:text-cyan-400">
               {selectedBracket?.event.name || 'Event'}
             </Link>
             <span>/</span>
@@ -116,7 +116,7 @@ export default function PublicEventBracketsPage() {
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Tournament Brackets</h1>
+              <h1 className="text-4xl font-bold mb-2 text-cyan-400">Tournament Brackets</h1>
               {selectedBracket && (
                 <p className="text-gray-400">
                   {selectedBracket.event.name} • {selectedBracket.event.game}
