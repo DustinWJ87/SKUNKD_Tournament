@@ -213,31 +213,31 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
       <div className="container mx-auto px-4 py-8">
         {/* Profile Header */}
-        <div className="bg-gray-800/50 rounded-lg p-8 border border-gray-700 mb-8">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-6">
-              <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-4xl font-bold">
+        <div className="bg-gray-800/50 rounded-lg p-4 sm:p-8 border border-gray-700 mb-8">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
+            <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-2xl sm:text-4xl font-bold flex-shrink-0">
                 {profile.user.username[0].toUpperCase()}
               </div>
-              <div>
-                <h1 className="text-3xl font-bold">{profile.user.username}</h1>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-3xl font-bold truncate">{profile.user.username}</h1>
                 {profile.user.name && (
-                  <p className="text-gray-400 text-lg">{profile.user.name}</p>
+                  <p className="text-gray-400 text-base sm:text-lg truncate">{profile.user.name}</p>
                 )}
                 {profile.user.gamerTag && (
-                  <p className="text-purple-400">@{profile.user.gamerTag}</p>
+                  <p className="text-purple-400 truncate">@{profile.user.gamerTag}</p>
                 )}
                 {profile.user.bio && !editing && (
-                  <p className="text-gray-300 mt-2">{profile.user.bio}</p>
+                  <p className="text-gray-300 mt-2 text-sm sm:text-base line-clamp-2">{profile.user.bio}</p>
                 )}
-                <p className="text-gray-500 text-sm mt-2">
+                <p className="text-gray-500 text-xs sm:text-sm mt-2">
                   Member since {new Date(profile.user.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setEditing(!editing)}
-              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors"
+              className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors whitespace-nowrap self-start sm:self-auto w-full sm:w-auto"
             >
               {editing ? "Cancel" : "Edit Profile"}
             </button>

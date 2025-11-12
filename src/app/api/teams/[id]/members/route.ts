@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { createNotification } from "@/lib/notifications"
 
-// POST /api/teams/[id]/members - Add member to team
+// POST /api/teams/[id]/members - Send team invite
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -20,11 +21,11 @@ export async function POST(
     const teamId = params.id
 
     const body = await request.json()
-    const { username, role } = body
+    const { username, email, message } = body
 
-    if (!username) {
+    if (!username && !email) {
       return NextResponse.json(
-        { error: "Username is required" },
+        { error: "Username or email is required" },
         { status: 400 }
       )
     }
@@ -42,22 +43,22 @@ export async function POST(
 
     if (!currentMembership) {
       return NextResponse.json(
-        { error: "Only team captains can add members" },
+        { error: "Only team captains can invite members" },
         { status: 403 }
       )
     }
 
-    // Find user to add
-    const userToAdd = await prisma.user.findFirst({
+    // Find user to invite
+    const userToInvite = await prisma.user.findFirst({
       where: {
         OR: [
-          { username: username },
-          { email: username },
+          ...(username ? [{ username: username }] : []),
+          ...(email ? [{ email: email }] : []),
         ],
       },
     })
 
-    if (!userToAdd) {
+    if (!userToInvite) {
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
@@ -68,7 +69,7 @@ export async function POST(
     const existingMembership = await prisma.teamMember.findFirst({
       where: {
         teamId: teamId,
-        userId: userToAdd.id,
+        userId: userToInvite.id,
       },
     })
 
@@ -79,31 +80,89 @@ export async function POST(
       )
     }
 
-    // Add user to team
-    const newMember = await prisma.teamMember.create({
+    // Check if invite already exists
+    const existingInvite = await prisma.teamInvite.findFirst({
+      where: {
+        teamId: teamId,
+        userId: userToInvite.id,
+        status: "PENDING",
+      },
+    })
+
+    if (existingInvite) {
+      return NextResponse.json(
+        { error: "User already has a pending invite" },
+        { status: 400 }
+      )
+    }
+
+    // Get team info
+    const team = await prisma.team.findUnique({
+      where: { id: teamId },
+      include: {
+        _count: {
+          select: { members: true },
+        },
+      },
+    })
+
+    if (!team) {
+      return NextResponse.json({ error: "Team not found" }, { status: 404 })
+    }
+
+    // Check if team is full
+    if (team._count.members >= team.maxMembers) {
+      return NextResponse.json(
+        { error: "Team is full" },
+        { status: 400 }
+      )
+    }
+
+    // Create invite (expires in 7 days)
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 7)
+
+    const invite = await prisma.teamInvite.create({
       data: {
         teamId: teamId,
-        userId: userToAdd.id,
-        role: role || "MEMBER",
+        userId: userToInvite.id,
+        message: message?.trim() || null,
+        expiresAt: expiresAt,
       },
       include: {
+        team: {
+          select: {
+            id: true,
+            name: true,
+            tag: true,
+          },
+        },
         user: {
           select: {
             id: true,
             username: true,
             name: true,
             email: true,
-            gamerTag: true,
           },
         },
       },
     })
 
-    return NextResponse.json(newMember, { status: 201 })
+    // Create notification for invited user
+    await createNotification({
+      userId: userToInvite.id,
+      type: "TEAM_INVITATION",
+      title: `Team Invitation from ${team.name}`,
+      message: message || `You've been invited to join ${team.name}`,
+      link: `/teams/invites/${invite.id}`,
+      teamId: teamId,
+    })
+
+    return NextResponse.json(invite, { status: 201 })
   } catch (error) {
-    console.error("Error adding team member:", error)
+    console.error("Error creating team invite:", error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to add team member" },
+      { error: error instanceof Error ? error.message : "Failed to create invite" },
       { status: 500 }
     )
   }

@@ -195,68 +195,60 @@ export default function AdminRegistrationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-700 rounded w-1/4 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-32 bg-gray-700 rounded"></div>
-              <div className="h-32 bg-gray-700 rounded"></div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-midnight-900 flex items-center justify-center">
+        <div className="text-cyan-400 text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-midnight-900 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Registration Management</h1>
-          <p className="text-gray-400">Manage all event registrations across the platform</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400 mb-2">Registration Management</h1>
+          <p className="text-gray-400 text-sm sm:text-base">Manage all event registrations across the platform</p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg p-6 border border-purple-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.total}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20">
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{stats.total}</div>
             <div className="text-gray-400 text-sm">Total Registrations</div>
           </div>
-          <div className="bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-lg p-6 border border-yellow-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.pending}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-yellow-500/20">
+            <div className="text-3xl font-bold text-yellow-400 mb-1">{stats.pending}</div>
             <div className="text-gray-400 text-sm">Pending Review</div>
           </div>
-          <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg p-6 border border-green-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.approved}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-green-500/20">
+            <div className="text-3xl font-bold text-green-400 mb-1">{stats.approved}</div>
             <div className="text-gray-400 text-sm">Approved</div>
           </div>
-          <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-6 border border-blue-500/30">
-            <div className="text-3xl font-bold mb-1">${stats.revenue.toFixed(2)}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20">
+            <div className="text-3xl font-bold text-cyan-400 mb-1">${stats.revenue.toFixed(2)}</div>
             <div className="text-gray-400 text-sm">Total Revenue</div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 mb-6">
+        <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Search</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Search</label>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search users or events..."
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Status</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
               >
                 <option value="ALL">All Statuses</option>
                 <option value="PENDING">Pending</option>
@@ -267,11 +259,11 @@ export default function AdminRegistrationsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Payment</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Payment</label>
               <select
                 value={paymentFilter}
                 onChange={(e) => setPaymentFilter(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
               >
                 <option value="ALL">All Payments</option>
                 <option value="PAID">Paid</option>
@@ -281,11 +273,11 @@ export default function AdminRegistrationsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Event</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Event</label>
               <select
                 value={eventFilter}
                 onChange={(e) => setEventFilter(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
               >
                 <option value="ALL">All Events</option>
                 {uniqueEvents.map((event: any) => (
@@ -304,38 +296,38 @@ export default function AdminRegistrationsPage() {
         </div>
 
         {/* Registrations Table */}
-        <div className="bg-gray-800/50 rounded-lg border border-gray-700 overflow-hidden">
+        <div className="bg-midnight-800 rounded-lg border border-cyan-500/20 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-700/50">
+              <thead className="bg-midnight-950 border-b border-cyan-500/20">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Event
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Seat
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Payment
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Check-In
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Registered
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody className="divide-y divide-cyan-500/10">
                 {filteredRegistrations.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-8 text-center text-gray-400">
@@ -344,12 +336,12 @@ export default function AdminRegistrationsPage() {
                   </tr>
                 ) : (
                   filteredRegistrations.map((reg) => (
-                    <tr key={reg.id} className="hover:bg-gray-700/30 transition-colors">
+                    <tr key={reg.id} className="hover:bg-midnight-700/50 transition-colors">
                       <td className="px-6 py-4">
                         <div>
                           <Link
                             href={`/profile/${reg.user.id}`}
-                            className="font-medium hover:text-purple-400"
+                            className="font-medium text-white hover:text-cyan-400"
                           >
                             {reg.user.username}
                           </Link>
@@ -362,13 +354,13 @@ export default function AdminRegistrationsPage() {
                       <td className="px-6 py-4">
                         <Link
                           href={`/events/${reg.event.id}`}
-                          className="hover:text-purple-400"
+                          className="text-white hover:text-cyan-400"
                         >
                           {reg.event.name}
                         </Link>
                         <div className="text-sm text-gray-400">{reg.event.game}</div>
                         {reg.team && (
-                          <div className="text-xs text-blue-400">
+                          <div className="text-xs text-cyan-400">
                             Team: {reg.team.name}
                             {reg.team.tag && ` [${reg.team.tag}]`}
                           </div>
@@ -377,7 +369,7 @@ export default function AdminRegistrationsPage() {
                       <td className="px-6 py-4">
                         {reg.seat ? (
                           <div>
-                            <div className="font-medium">{reg.seat.label}</div>
+                            <div className="font-medium text-white">{reg.seat.label}</div>
                             {reg.seat.type === "VIP" && (
                               <span className="text-yellow-400 text-xs">⭐ VIP</span>
                             )}
@@ -395,7 +387,7 @@ export default function AdminRegistrationsPage() {
                           disabled={updating === reg.id}
                           className={`text-xs px-3 py-1 rounded border ${getStatusBadge(
                             reg.status
-                          )} bg-transparent focus:outline-none focus:border-purple-500 disabled:opacity-50`}
+                          )} bg-midnight-900 text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50`}
                         >
                           <option value="PENDING">Pending</option>
                           <option value="APPROVED">Approved</option>
@@ -413,7 +405,7 @@ export default function AdminRegistrationsPage() {
                           disabled={updating === reg.id}
                           className={`text-xs px-3 py-1 rounded border ${getPaymentBadge(
                             reg.paymentStatus
-                          )} bg-transparent focus:outline-none focus:border-purple-500 disabled:opacity-50`}
+                          )} bg-midnight-900 text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50`}
                         >
                           <option value="UNPAID">Unpaid</option>
                           <option value="PENDING">Pending</option>
@@ -433,20 +425,20 @@ export default function AdminRegistrationsPage() {
                             handleUpdateStatus(reg.id, "checkInStatus", e.target.value)
                           }
                           disabled={updating === reg.id}
-                          className="text-xs px-3 py-1 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-purple-500 disabled:opacity-50"
+                          className="text-xs px-3 py-1 rounded bg-midnight-900 border border-cyan-500/20 text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50"
                         >
                           <option value="NOT_CHECKED_IN">Not Checked In</option>
                           <option value="CHECKED_IN">Checked In</option>
                           <option value="NO_SHOW">No Show</option>
                         </select>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-400">
+                      <td className="px-6 py-4 text-sm text-gray-300">
                         {formatDate(reg.registeredAt)}
                       </td>
                       <td className="px-6 py-4">
                         <Link
                           href={`/profile/${reg.user.id}`}
-                          className="text-purple-400 hover:text-purple-300 text-sm"
+                          className="text-cyan-400 hover:text-cyan-300 text-sm font-medium"
                         >
                           View User
                         </Link>

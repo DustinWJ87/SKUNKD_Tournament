@@ -32,6 +32,30 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             >
               Users
             </Link>
+            <Link
+              href="/admin/teams"
+              className="py-4 px-2 text-sm font-medium text-gray-400 hover:text-white border-b-2 border-transparent hover:border-purple-500 transition-colors whitespace-nowrap"
+            >
+              Teams
+            </Link>
+            <Link
+              href="/admin/analytics"
+              className="py-4 px-2 text-sm font-medium text-gray-400 hover:text-white border-b-2 border-transparent hover:border-purple-500 transition-colors whitespace-nowrap"
+            >
+              Analytics
+            </Link>
+            <Link
+              href="/admin/audit-logs"
+              className="py-4 px-2 text-sm font-medium text-gray-400 hover:text-white border-b-2 border-transparent hover:border-purple-500 transition-colors whitespace-nowrap"
+            >
+              Audit Logs
+            </Link>
+            <Link
+              href="/admin/announcements"
+              className="py-4 px-2 text-sm font-medium text-gray-400 hover:text-white border-b-2 border-transparent hover:border-purple-500 transition-colors whitespace-nowrap"
+            >
+              Announcements
+            </Link>
           </nav>
         </div>
       </div>

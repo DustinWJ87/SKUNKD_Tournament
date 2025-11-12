@@ -84,29 +84,29 @@
       }
 
       return (
-        <div className="space-y-10">
+        <div className="space-y-6 md:space-y-10">
           <header className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h1 className="font-display text-3xl uppercase text-white">Upcoming Events</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <h1 className="font-display text-2xl md:text-3xl uppercase text-white">Upcoming Events</h1>
               <Link 
                 href="/events/past" 
-                className="text-sm uppercase tracking-[0.3em] text-cyan-400 hover:text-cyan-300 transition"
+                className="text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-cyan-400 hover:text-cyan-300 transition tap-target"
               >
                 Past Tournaments →
               </Link>
             </div>
-            <p className="text-sm uppercase tracking-[0.3em] text-white/60">
+            <p className="text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-white/60">
               Reserve your seat in the arena.
             </p>
           </header>
 
           {events.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-white/70 text-lg">No events available at this time.</p>
+              <p className="text-white/70 text-base md:text-lg">No events available at this time.</p>
               <p className="text-white/50 text-sm mt-2">Check back soon for upcoming tournaments!</p>
             </div>
           ) : (
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-2">
               {events.map((event) => {
                 const statusBadge = getStatusBadge(event.status);
                 const spotsRemaining = getSpotsRemaining(event);
@@ -115,13 +115,13 @@
                   <Link
                     key={event.id}
                     href={`/events/${event.id}`}
-                    className="group flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition hover:border-skunkd-cyan/60"
+                    className="group flex flex-col gap-3 md:gap-4 rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-4 md:p-6 backdrop-blur-sm transition hover:border-skunkd-cyan/60 active:scale-[0.98]"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className={`rounded-full border ${statusBadge.color} px-3 py-1 text-xs uppercase tracking-[0.3em]`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`rounded-full border ${statusBadge.color} px-2 md:px-3 py-1 text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] whitespace-nowrap`}>
                         {statusBadge.text}
                       </span>
-                      <span className="text-sm text-white/70">
+                      <span className="text-xs md:text-sm text-white/70">
                         {new Date(event.startDate).toLocaleDateString(undefined, {
                           month: "short",
                           day: "numeric",
@@ -130,15 +130,16 @@
                       </span>
                     </div>
                     
-                    <h2 className="font-display text-2xl text-white">{event.name}</h2>
+                    <h2 className="font-display text-xl md:text-2xl text-white line-clamp-2">{event.name}</h2>
                     
-                    <div className="flex flex-col gap-1 text-sm text-white/70">
+                    <div className="flex flex-col gap-1 text-xs md:text-sm text-white/70">
                       <p className="flex items-center gap-2">
-                        <span className="text-cyan-400">🎮</span> {event.game}
+                        <span className="text-cyan-400">🎮</span> 
+                        <span className="truncate">{event.game}</span>
                       </p>
                       <p className="flex items-center gap-2">
                         <span className="text-purple-400">{event.isOnline ? '🌐' : '📍'}</span>
-                        {event.isOnline ? 'Online' : event.venue || 'TBA'}
+                        <span className="truncate">{event.isOnline ? 'Online' : event.venue || 'TBA'}</span>
                       </p>
                       {event.prizePool && (
                         <p className="flex items-center gap-2">
@@ -149,11 +150,11 @@
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-white/10">
-                      <p className="text-sm text-white/70">
-                        Spots remaining: <span className={spotsRemaining > 0 ? 'text-green-400' : 'text-red-400'}>{spotsRemaining}</span>
+                      <p className="text-xs md:text-sm text-white/70">
+                        Spots: <span className={spotsRemaining > 0 ? 'text-green-400' : 'text-red-400'}>{spotsRemaining}</span>
                       </p>
-                      <span className="text-xs uppercase tracking-[0.3em] text-skunkd-cyan opacity-0 transition group-hover:opacity-100">
-                        View Details →
+                      <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] text-skunkd-cyan opacity-0 transition group-hover:opacity-100">
+                        View →
                       </span>
                     </div>
                   </Link>

@@ -36,6 +36,17 @@ interface Team {
   tag: string | null
   description: string | null
   logo: string | null
+  bannerImage: string | null
+  primaryColor: string | null
+  secondaryColor: string | null
+  websiteUrl: string | null
+  twitterUrl: string | null
+  discordUrl: string | null
+  twitchUrl: string | null
+  youtubeUrl: string | null
+  isPublic: boolean
+  allowJoinRequests: boolean
+  maxMembers: number
   createdAt: string
   creator: {
     id: string
@@ -57,7 +68,7 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
   const [loading, setLoading] = useState(true)
   const [showAddMember, setShowAddMember] = useState(false)
   const [newMemberUsername, setNewMemberUsername] = useState("")
-  const [newMemberRole, setNewMemberRole] = useState("MEMBER")
+  const [inviteMessage, setInviteMessage] = useState("")
   const [adding, setAdding] = useState(false)
 
   useEffect(() => {
@@ -105,22 +116,22 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
         },
         body: JSON.stringify({
           username: newMemberUsername,
-          role: newMemberRole,
+          message: inviteMessage,
         }),
       })
 
       if (response.ok) {
-        await fetchTeam()
         setShowAddMember(false)
         setNewMemberUsername("")
-        setNewMemberRole("MEMBER")
+        setInviteMessage("")
+        alert("Team invitation sent successfully!")
       } else {
         const data = await response.json()
-        alert(data.error || "Failed to add member")
+        alert(data.error || "Failed to send invite")
       }
     } catch (error) {
-      console.error("Error adding member:", error)
-      alert("Failed to add member")
+      console.error("Error sending invite:", error)
+      alert("Failed to send invite")
     } finally {
       setAdding(false)
     }
@@ -207,34 +218,137 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
+      {/* Banner Image */}
+      {team.bannerImage && (
+        <div className="relative h-64 overflow-hidden">
+          <img
+            src={team.bannerImage}
+            alt={`${team.name} banner`}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-gray-900"></div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-8" style={{ marginTop: team.bannerImage ? "-4rem" : "0" }}>
           <Link href="/teams" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
             ← Back to Teams
           </Link>
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">
-                {team.name}
-                {team.tag && <span className="text-gray-400 ml-2">[{team.tag}]</span>}
-              </h1>
-              {team.description && <p className="text-gray-400 mt-2">{team.description}</p>}
-              <div className="flex items-center gap-4 mt-4 text-sm text-gray-400">
-                <div>Created by {team.creator.username}</div>
-                <div>•</div>
-                <div>{team._count.members} members</div>
-                <div>•</div>
-                <div>{team._count.registrations} events</div>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-start gap-3 sm:gap-4">
+              {team.logo && (
+                <img
+                  src={team.logo}
+                  alt={`${team.name} logo`}
+                  className="w-16 h-16 sm:w-24 sm:h-24 rounded-lg border-4 border-gray-900 object-cover flex-shrink-0"
+                  style={{ borderColor: team.primaryColor || "#9333ea" }}
+                />
+              )}
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl sm:text-4xl font-bold mb-2 break-words" style={{ color: team.primaryColor || "#ffffff" }}>
+                  {team.name}
+                  {team.tag && <span className="text-gray-400 ml-2">[{team.tag}]</span>}
+                </h1>
+                {team.description && <p className="text-gray-400 mt-2 text-sm sm:text-base max-w-2xl">{team.description}</p>}
+                
+                {/* Social Links */}
+                {(team.websiteUrl || team.twitterUrl || team.discordUrl || team.twitchUrl || team.youtubeUrl) && (
+                  <div className="flex items-center gap-3 mt-4">
+                    {team.websiteUrl && (
+                      <a
+                        href={team.websiteUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors tap-target"
+                        title="Website"
+                      >
+                        🌐
+                      </a>
+                    )}
+                    {team.twitterUrl && (
+                      <a
+                        href={team.twitterUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors tap-target"
+                        title="Twitter"
+                      >
+                        🐦
+                      </a>
+                    )}
+                    {team.discordUrl && (
+                      <a
+                        href={team.discordUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors tap-target"
+                        title="Discord"
+                      >
+                        💬
+                      </a>
+                    )}
+                    {team.twitchUrl && (
+                      <a
+                        href={team.twitchUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors tap-target"
+                        title="Twitch"
+                      >
+                        📺
+                      </a>
+                    )}
+                    {team.youtubeUrl && (
+                      <a
+                        href={team.youtubeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-colors tap-target"
+                        title="YouTube"
+                      >
+                        ▶️
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-4 text-xs sm:text-sm text-gray-400">
+                  <div>Created by {team.creator.username}</div>
+                  <div className="hidden sm:block">•</div>
+                  <div>{team._count.members} / {team.maxMembers} members</div>
+                  <div className="hidden sm:block">•</div>
+                  <div>{team._count.registrations} events</div>
+                </div>
               </div>
             </div>
-            {isCreator() && (
-              <button
-                onClick={handleDeleteTeam}
-                className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/50 px-4 py-2 rounded-lg text-sm transition-colors"
-              >
-                Delete Team
-              </button>
+            
+            {/* Action Buttons - Mobile & Desktop */}
+            {(canManageTeam() || isCreator()) && (
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                {canManageTeam() && (
+                  <Link
+                    href={`/teams/${params.id}/settings`}
+                    className="px-4 py-2 rounded-lg text-sm transition-colors border text-center whitespace-nowrap"
+                    style={{
+                      backgroundColor: team.secondaryColor + "40" || "#6b21a840",
+                      borderColor: team.secondaryColor || "#6b21a8",
+                      color: team.secondaryColor || "#a78bfa"
+                    }}
+                  >
+                    ⚙️ Settings
+                  </Link>
+                )}
+                {isCreator() && (
+                  <button
+                    onClick={handleDeleteTeam}
+                    className="bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-600/50 px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap"
+                  >
+                    Delete Team
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -248,9 +362,13 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
                 {canManageTeam() && (
                   <button
                     onClick={() => setShowAddMember(true)}
-                    className="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg text-sm transition-colors"
+                    className="px-4 py-2 rounded-lg text-sm transition-colors font-semibold"
+                    style={{
+                      backgroundColor: team.primaryColor || "#9333ea",
+                      color: "#ffffff"
+                    }}
                   >
-                    + Add Member
+                    + Invite Member
                   </button>
                 )}
               </div>
@@ -259,10 +377,14 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
                 {team.members.map((member) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between bg-gray-700/50 rounded-lg p-4"
+                    className="flex items-center justify-between bg-gray-700/50 rounded-lg p-4 border border-gray-600"
+                    style={{ borderColor: member.role === "CAPTAIN" ? team.primaryColor + "40" : "#4b5563" }}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center font-bold">
+                      <div
+                        className="w-10 h-10 rounded-full flex items-center justify-center font-bold"
+                        style={{ backgroundColor: team.primaryColor || "#9333ea" }}
+                      >
                         {member.user.username[0].toUpperCase()}
                       </div>
                       <div>
@@ -318,15 +440,15 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        {/* Add Member Modal */}
+        {/* Invite Member Modal */}
         {showAddMember && (
-          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-lg p-8 max-w-md w-full border border-gray-700">
+          <div className="fixed inset-0 bg-black/70 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+            <div className="bg-gray-800 rounded-t-2xl sm:rounded-lg p-6 md:p-8 w-full sm:max-w-md border-t sm:border border-gray-700 max-h-[90vh] sm:max-h-[80vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Add Team Member</h2>
+                <h2 className="text-xl md:text-2xl font-bold">Invite Team Member</h2>
                 <button
                   onClick={() => setShowAddMember(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-gray-400 hover:text-white tap-target p-2 -m-2"
                 >
                   ✕
                 </button>
@@ -341,39 +463,45 @@ export default function TeamDetailPage({ params }: { params: { id: string } }) {
                     type="text"
                     value={newMemberUsername}
                     onChange={(e) => setNewMemberUsername(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 text-base"
                     placeholder="Enter username or email"
                     required
+                    autoFocus
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Role</label>
-                  <select
-                    value={newMemberRole}
-                    onChange={(e) => setNewMemberRole(e.target.value)}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
-                  >
-                    <option value="MEMBER">Member</option>
-                    <option value="CO_CAPTAIN">Co-Captain</option>
-                    {getUserRole() === "CAPTAIN" && <option value="CAPTAIN">Captain</option>}
-                  </select>
+                  <label className="block text-sm font-medium mb-2">Invitation Message (optional)</label>
+                  <textarea
+                    value={inviteMessage}
+                    onChange={(e) => setInviteMessage(e.target.value)}
+                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 h-24 resize-none text-base"
+                    placeholder="Add a personal message to your invitation..."
+                  />
                 </div>
 
-                <div className="flex gap-4 pt-4">
+                <div className="bg-gray-700/50 rounded-lg p-3 text-xs md:text-sm text-gray-400">
+                  💡 The user will receive a notification and can accept or decline the invitation.
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowAddMember(false)}
-                    className="flex-1 bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
+                    className="flex-1 bg-gray-700 hover:bg-gray-600 px-4 py-3 rounded-lg transition-colors tap-target"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={adding}
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="flex-1 px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed tap-target"
+                    style={{
+                      backgroundColor: team?.primaryColor || "#9333ea",
+                      color: "#ffffff"
+                    }}
                   >
-                    {adding ? "Adding..." : "Add Member"}
+                    {adding ? "Sending..." : "Send Invite"}
                   </button>
                 </div>
               </form>

@@ -24,6 +24,8 @@ interface Team {
   tag: string | null
   description: string | null
   logo: string | null
+  primaryColor: string | null
+  secondaryColor: string | null
   createdAt: string
   creator: {
     id: string
@@ -179,52 +181,75 @@ export default function TeamsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {teams.map((team) => {
               const userRole = getUserRole(team)
+              const primaryColor = team.primaryColor || "#9333ea"
+              const secondaryColor = team.secondaryColor || "#6b21a8"
+              
               return (
                 <Link
                   key={team.id}
                   href={`/teams/${team.id}`}
-                  className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-purple-500/50 transition-all group"
+                  className="bg-gray-800/50 rounded-lg overflow-hidden border border-gray-700 hover:border-opacity-100 transition-all group"
+                  style={{ borderColor: primaryColor + "50" }}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold group-hover:text-purple-400 transition-colors">
-                        {team.name}
-                      </h3>
-                      {team.tag && (
-                        <span className="text-sm text-gray-400">[{team.tag}]</span>
+                  {team.logo && (
+                    <div className="h-32 overflow-hidden relative">
+                      <img
+                        src={team.logo}
+                        alt={`${team.name} logo`}
+                        className="w-full h-full object-cover"
+                      />
+                      <div
+                        className="absolute inset-0 opacity-30"
+                        style={{ background: `linear-gradient(to bottom, transparent, ${secondaryColor})` }}
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3
+                          className="text-xl font-bold group-hover:opacity-80 transition-opacity"
+                          style={{ color: primaryColor }}
+                        >
+                          {team.name}
+                        </h3>
+                        {team.tag && (
+                          <span className="text-sm text-gray-400">[{team.tag}]</span>
+                        )}
+                      </div>
+                      {userRole && (
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full border ${getRoleBadge(
+                            userRole
+                          )}`}
+                        >
+                          {userRole.replace("_", " ")}
+                        </span>
                       )}
                     </div>
-                    {userRole && (
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full border ${getRoleBadge(
-                          userRole
-                        )}`}
-                      >
-                        {userRole.replace("_", " ")}
-                      </span>
+
+                    {team.description && (
+                      <p className="text-sm text-gray-400 mb-4 line-clamp-2">
+                        {team.description}
+                      </p>
                     )}
-                  </div>
 
-                  {team.description && (
-                    <p className="text-sm text-gray-400 mb-4 line-clamp-2">
-                      {team.description}
-                    </p>
-                  )}
-
-                  <div className="flex items-center gap-4 text-sm text-gray-400">
-                    <div className="flex items-center gap-1">
-                      <span>👥</span>
-                      <span>{team._count?.members || team.members?.length || 0} members</span>
+                    <div className="flex items-center gap-4 text-sm text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <span>👥</span>
+                        <span>{team._count?.members || team.members?.length || 0} members</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span>🏆</span>
+                        <span>{team._count?.registrations || 0} events</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <span>🏆</span>
-                      <span>{team._count?.registrations || 0} events</span>
-                    </div>
-                  </div>
 
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <div className="text-xs text-gray-500">
-                      Created by {team.creator.username}
+                    <div className="mt-4 pt-4 border-t" style={{ borderColor: secondaryColor + "40" }}>
+                      <div className="text-xs text-gray-500">
+                        Created by {team.creator.username}
+                      </div>
                     </div>
                   </div>
                 </Link>

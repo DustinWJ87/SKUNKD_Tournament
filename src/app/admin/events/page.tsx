@@ -113,17 +113,19 @@ export default function AdminEventsPage() {
     <div className="min-h-screen bg-midnight-900 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold text-cyan-400 mb-2">Event Management</h1>
-            <p className="text-gray-400">Manage all tournament events</p>
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 sm:gap-6">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400 mb-2">Event Management</h1>
+              <p className="text-gray-400 text-sm sm:text-base">Manage all tournament events</p>
+            </div>
+            <Link
+              href="/admin/events/create"
+              className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-cyan-500/50 whitespace-nowrap text-center sm:self-start"
+            >
+              + Create Event
+            </Link>
           </div>
-          <Link
-            href="/admin/events/create"
-            className="bg-gradient-to-r from-cyan-500 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-cyan-600 hover:to-purple-700 transition-all shadow-lg hover:shadow-cyan-500/50"
-          >
-            + Create Event
-          </Link>
         </div>
 
         {/* Filter Tabs */}

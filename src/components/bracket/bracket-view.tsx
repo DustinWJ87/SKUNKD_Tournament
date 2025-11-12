@@ -115,57 +115,62 @@ export default function BracketView({ bracket, onMatchClick, editable = false }:
   return (
     <div className="w-full">
       {/* Bracket Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold">{bracket.name}</h2>
-          <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded text-sm font-medium ${
+      <div className="mb-4 md:mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+          <h2 className="text-xl md:text-2xl font-bold">{bracket.name}</h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`px-2 md:px-3 py-1 rounded text-xs md:text-sm font-medium ${
               bracket.status === 'COMPLETED' ? 'bg-green-500/20 text-green-400' :
               bracket.status === 'IN_PROGRESS' ? 'bg-yellow-500/20 text-yellow-400' :
               'bg-gray-500/20 text-gray-400'
             }`}>
               {bracket.status.replace('_', ' ')}
             </span>
-            <span className="px-3 py-1 rounded text-sm bg-purple-500/20 text-purple-400">
+            <span className="px-2 md:px-3 py-1 rounded text-xs md:text-sm bg-purple-500/20 text-purple-400">
               {bracket.type.replace('_', ' ')}
             </span>
           </div>
         </div>
-        <p className="text-gray-400 text-sm">
+        <p className="text-gray-400 text-xs md:text-sm">
           {bracket.participants.length} Participants • {bracket.roundCount} Rounds
           {bracket.thirdPlaceMatch && ' • Includes 3rd Place Match'}
         </p>
       </div>
 
+      {/* Mobile Hint */}
+      <div className="md:hidden mb-3 px-3 py-2 bg-purple-500/10 border border-purple-500/30 rounded-lg text-xs text-purple-300 text-center">
+        💡 Swipe horizontally to view all rounds
+      </div>
+
       {/* Bracket Visualization */}
-      <div className="relative overflow-x-auto">
-        <div className="flex gap-8 pb-4" style={{ minWidth: 'fit-content' }}>
+      <div className="relative overflow-x-auto smooth-scroll -mx-4 px-4 md:mx-0 md:px-0">
+        <div className="flex gap-4 md:gap-8 pb-4" style={{ minWidth: 'fit-content' }}>
           {rounds.map((round) => {
             const matches = matchesByRound[round]
             const isThirdPlaceRound = matches.some(m => m.isThirdPlace)
 
             return (
-              <div key={round} className="flex flex-col min-w-[280px]">
+              <div key={round} className="flex flex-col min-w-[240px] md:min-w-[280px]">
                 {/* Round Header */}
-                <div className="mb-4 sticky top-0 bg-gradient-to-b from-gray-900 to-transparent pb-2 z-10">
-                  <h3 className="text-lg font-semibold text-center">
+                <div className="mb-3 md:mb-4 sticky top-0 bg-gradient-to-b from-gray-900 to-transparent pb-2 z-10">
+                  <h3 className="text-base md:text-lg font-semibold text-center">
                     {getRoundName(round)}
                   </h3>
-                  <p className="text-xs text-gray-500 text-center">
+                  <p className="text-[10px] md:text-xs text-gray-500 text-center">
                     {matches.filter(m => !m.isThirdPlace).length} {matches.filter(m => !m.isThirdPlace).length === 1 ? 'Match' : 'Matches'}
                   </p>
                 </div>
 
                 {/* Matches */}
-                <div className="flex flex-col justify-around gap-4 flex-1">
+                <div className="flex flex-col justify-around gap-3 md:gap-4 flex-1">
                   {matches.map((match) => (
                     <div
                       key={match.id}
-                      className={`relative ${match.isThirdPlace ? 'mt-8' : ''}`}
+                      className={`relative ${match.isThirdPlace ? 'mt-6 md:mt-8' : ''}`}
                     >
                       {match.isThirdPlace && (
-                        <div className="absolute -top-6 left-0 right-0 text-center">
-                          <span className="text-xs font-medium text-yellow-400 bg-yellow-500/20 px-2 py-1 rounded">
+                        <div className="absolute -top-5 md:-top-6 left-0 right-0 text-center">
+                          <span className="text-[10px] md:text-xs font-medium text-yellow-400 bg-yellow-500/20 px-2 py-1 rounded">
                             3rd Place
                           </span>
                         </div>
@@ -174,7 +179,7 @@ export default function BracketView({ bracket, onMatchClick, editable = false }:
                       <button
                         onClick={() => handleMatchClick(match)}
                         disabled={!editable && match.status === 'PENDING'}
-                        className={`w-full border-2 rounded-lg p-3 transition-all ${getMatchStatusColor(
+                        className={`w-full border-2 rounded-lg p-2 md:p-3 transition-all active:scale-95 ${getMatchStatusColor(
                           match.status
                         )} ${
                           selectedMatch === match.id ? 'ring-2 ring-purple-500' : ''

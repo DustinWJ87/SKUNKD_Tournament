@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { Prisma } from "@prisma/client"
+import { createAuditLog, getRequestInfo } from "@/lib/audit"
 
 export async function GET(request: NextRequest) {
   try {
@@ -128,6 +129,24 @@ export async function POST(request: NextRequest) {
       }
 
       return event
+    })
+
+    // Create audit log
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createAuditLog({
+      action: "EVENT_CREATED",
+      entityType: "Event",
+      entityId: result.id,
+      userId: user.id,
+      userName: user.name || user.username,
+      userRole: user.role,
+      metadata: {
+        eventName: result.name,
+        game: result.game,
+        maxParticipants: result.maxParticipants,
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json(result, { status: 201 })

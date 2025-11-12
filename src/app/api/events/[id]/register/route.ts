@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { createNotification } from "@/lib/notifications"
+import { sendRegistrationConfirmation } from "@/lib/email"
 
 export async function POST(
   request: NextRequest,
@@ -153,6 +155,36 @@ export async function POST(
 
       return registration
     })
+
+    // Get user details for notification and email
+    const userDetails = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true, username: true, email: true },
+    })
+
+    if (userDetails) {
+      const userName = userDetails.name || userDetails.username
+      const eventName = result.event.name
+
+      // Send confirmation notification
+      await createNotification({
+        userId,
+        type: "REGISTRATION_CONFIRMED",
+        title: "Registration Confirmed!",
+        message: `You have successfully registered for ${eventName}. ${event.entryFee > 0 ? "Payment pending." : ""}`,
+        link: `/events/${eventId}`,
+        eventId,
+        registrationId: result.id,
+      })
+
+      // Send confirmation email
+      await sendRegistrationConfirmation(
+        userDetails.email,
+        userName,
+        eventName,
+        eventId
+      )
+    }
 
     return NextResponse.json(result, { status: 201 })
   } catch (error) {

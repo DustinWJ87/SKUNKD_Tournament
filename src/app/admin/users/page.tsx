@@ -70,11 +70,17 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
+      console.log('Fetching users...')
       const response = await fetch("/api/admin/users")
+      console.log('Response status:', response.status)
       if (response.ok) {
         const data = await response.json()
+        console.log('Users fetched:', data.length, 'users')
         setUsers(data)
         setFilteredUsers(data)
+      } else {
+        const error = await response.json()
+        console.error('API error:', error)
       }
     } catch (error) {
       console.error("Error fetching users:", error)
@@ -145,68 +151,60 @@ export default function AdminUsersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-        <div className="container mx-auto px-4 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-700 rounded w-1/4 mb-8"></div>
-            <div className="space-y-4">
-              <div className="h-32 bg-gray-700 rounded"></div>
-              <div className="h-32 bg-gray-700 rounded"></div>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-midnight-900 flex items-center justify-center">
+        <div className="text-cyan-400 text-xl">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-midnight-900 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">User Management</h1>
-          <p className="text-gray-400">Manage user accounts and roles</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-cyan-400 mb-2">User Management</h1>
+          <p className="text-gray-400 text-sm sm:text-base">Manage user accounts and roles</p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-lg p-6 border border-purple-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.total}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20">
+            <div className="text-3xl font-bold text-cyan-400 mb-1">{stats.total}</div>
             <div className="text-gray-400 text-sm">Total Users</div>
           </div>
-          <div className="bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-lg p-6 border border-red-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.admins}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-red-500/20">
+            <div className="text-3xl font-bold text-red-400 mb-1">{stats.admins}</div>
             <div className="text-gray-400 text-sm">Admins</div>
           </div>
-          <div className="bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-lg p-6 border border-blue-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.organizers}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-blue-500/20">
+            <div className="text-3xl font-bold text-blue-400 mb-1">{stats.organizers}</div>
             <div className="text-gray-400 text-sm">Organizers</div>
           </div>
-          <div className="bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-lg p-6 border border-green-500/30">
-            <div className="text-3xl font-bold mb-1">{stats.players}</div>
+          <div className="bg-midnight-800 rounded-lg p-6 border border-green-500/20">
+            <div className="text-3xl font-bold text-green-400 mb-1">{stats.players}</div>
             <div className="text-gray-400 text-sm">Players</div>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 mb-6">
+        <div className="bg-midnight-800 rounded-lg p-6 border border-cyan-500/20 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Search</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Search</label>
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by username, email, name..."
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Role</label>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Role</label>
               <select
                 value={roleFilter}
                 onChange={(e) => setRoleFilter(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:border-purple-500"
+                className="w-full bg-midnight-900 border border-cyan-500/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan-500"
               >
                 <option value="ALL">All Roles</option>
                 <option value="ADMIN">Admin</option>
@@ -223,24 +221,24 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Users Table */}
-        <div className="bg-gray-800/50 rounded-lg border border-gray-700 overflow-hidden">
+        <div className="bg-midnight-800 rounded-lg border border-cyan-500/20 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-700/50">
+              <thead className="bg-midnight-950 border-b border-cyan-500/20">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Activity
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-cyan-400">
                     Joined
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
@@ -248,7 +246,7 @@ export default function AdminUsersPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody className="divide-y divide-cyan-500/10">
                 {filteredUsers.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
@@ -261,20 +259,20 @@ export default function AdminUsersPage() {
                     const isCurrentUser = currentUser.id === user.id
                     
                     return (
-                      <tr key={user.id} className="hover:bg-gray-700/30 transition-colors">
+                      <tr key={user.id} className="hover:bg-midnight-700/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-700 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0">
+                            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-cyan-700 rounded-full flex items-center justify-center text-lg font-bold flex-shrink-0">
                               {user.username[0].toUpperCase()}
                             </div>
                             <div>
                               <Link
                                 href={`/profile/${user.id}`}
-                                className="font-medium hover:text-purple-400"
+                                className="font-medium text-white hover:text-cyan-400"
                               >
                                 {user.username}
                                 {isCurrentUser && (
-                                  <span className="ml-2 text-xs text-purple-400">(You)</span>
+                                  <span className="ml-2 text-xs text-cyan-400">(You)</span>
                                 )}
                               </Link>
                               {user.gamerTag && (
@@ -286,7 +284,7 @@ export default function AdminUsersPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-400">{user.email}</td>
+                        <td className="px-6 py-4 text-sm text-gray-300">{user.email}</td>
                         <td className="px-6 py-4">
                           <select
                             value={user.role}
@@ -294,7 +292,7 @@ export default function AdminUsersPage() {
                             disabled={updating === user.id || isCurrentUser}
                             className={`text-xs px-3 py-1 rounded border ${getRoleBadge(
                               user.role
-                            )} bg-transparent focus:outline-none focus:border-purple-500 disabled:opacity-50 disabled:cursor-not-allowed`}
+                            )} bg-midnight-900 text-white focus:outline-none focus:border-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed`}
                           >
                             <option value="PLAYER">Player</option>
                             <option value="ORGANIZER">Organizer</option>
@@ -311,13 +309,13 @@ export default function AdminUsersPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-400">
+                        <td className="px-6 py-4 text-sm text-gray-300">
                           {formatDate(user.createdAt)}
                         </td>
                         <td className="px-6 py-4">
                           <Link
                             href={`/profile/${user.id}`}
-                            className="text-purple-400 hover:text-purple-300 text-sm"
+                            className="text-cyan-400 hover:text-cyan-300 text-sm font-medium"
                           >
                             View Profile
                           </Link>

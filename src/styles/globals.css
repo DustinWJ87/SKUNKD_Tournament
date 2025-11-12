@@ -13,3 +13,41 @@
     a {
       @apply text-skunkd-cyan transition hover:text-white;
     }
+
+    /* Mobile optimizations */
+    @layer utilities {
+      .safe-area-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      
+      .safe-area-top {
+        padding-top: env(safe-area-inset-top);
+      }
+      
+      /* Touch-friendly tap targets (min 44x44px) */
+      .tap-target {
+        @apply min-h-[44px] min-w-[44px];
+      }
+      
+      /* Prevent text selection on interactive elements */
+      .no-select {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      /* Smooth scrolling for mobile */
+      .smooth-scroll {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+      }
+      
+      /* Hide scrollbar but keep functionality */
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    }

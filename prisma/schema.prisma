@@ -39,8 +39,11 @@ model User {
   registrations EventRegistration[]
   teamMemberships TeamMember[]
   createdTeams  Team[]              @relation("TeamCreator")
+  teamInvites   TeamInvite[]
   createdEvents Event[]             @relation("EventCreator")
   seatReservations SeatReservation[]
+  notifications Notification[]
+  sentAnnouncements Announcement[]  @relation("AnnouncementCreator")
   
   @@map("users")
 }
@@ -176,6 +179,23 @@ model Team {
   description     String?
   logo            String?
   
+  // Customization
+  bannerImage     String?
+  primaryColor    String?  @default("#9333ea") // Default purple
+  secondaryColor  String?  @default("#6b21a8") // Default darker purple
+  
+  // Social Links
+  websiteUrl      String?
+  twitterUrl      String?
+  discordUrl      String?
+  twitchUrl       String?
+  youtubeUrl      String?
+  
+  // Settings
+  isPublic        Boolean  @default(true)
+  allowJoinRequests Boolean @default(true)
+  maxMembers      Int      @default(10)
+  
   // Timestamps
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -186,6 +206,7 @@ model Team {
   
   members         TeamMember[]
   registrations   EventRegistration[]
+  invites         TeamInvite[]
   
   @@map("teams")
 }
@@ -212,6 +233,46 @@ enum TeamMemberRole {
   CAPTAIN
   CO_CAPTAIN
   MEMBER
+}
+
+model TeamInvite {
+  id              String   @id @default(cuid())
+  
+  // Invite Status
+  status          TeamInviteStatus @default(PENDING)
+  
+  // Optional message from inviter
+  message         String?
+  
+  // Expiration
+  expiresAt       DateTime
+  
+  // Response
+  respondedAt     DateTime?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  teamId          String
+  team            Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, userId])
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("team_invites")
+}
+
+enum TeamInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
 }
 
 // ==========================================
@@ -424,4 +485,299 @@ model BracketParticipant {
   
   @@unique([bracketId, seed])
   @@map("bracket_participants")
+}
+
+// ==========================================
+// Analytics & Transactions
+// ==========================================
+
+model Transaction {
+  id              String   @id @default(cuid())
+  
+  // Transaction Details
+  type            TransactionType
+  amount          Float
+  currency        String   @default("USD")
+  
+  // Payment Provider Info
+  provider        String?  // e.g., "stripe", "paypal"
+  providerId      String?  // External transaction ID
+  
+  // Status
+  status          TransactionStatus @default(PENDING)
+  
+  // Relations
+  userId          String
+  eventId         String?
+  registrationId  String?
+  
+  // Metadata
+  metadata        Json?    // Additional data as needed
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+  
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  REGISTRATION_FEE
+  REFUND
+  PRIZE_PAYOUT
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// ==========================================
+// Audit Logs
+// ==========================================
+
+model AuditLog {
+  id              String   @id @default(cuid())
+  
+  // Action Details
+  action          AuditAction
+  entityType      String   // e.g., "Event", "User", "Registration"
+  entityId        String   // ID of the affected entity
+  
+  // Actor
+  userId          String?  // Who performed the action (null for system)
+  userName        String?  // Snapshot of user name
+  userRole        String?  // Snapshot of user role
+  
+  // Change Details
+  changes         Json?    // Before/after values
+  metadata        Json?    // Additional context
+  
+  // Request Info
+  ipAddress       String?
+  userAgent       String?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+enum AuditAction {
+  // User Actions
+  USER_CREATED
+  USER_UPDATED
+  USER_DELETED
+  USER_ROLE_CHANGED
+  
+  // Event Actions
+  EVENT_CREATED
+  EVENT_UPDATED
+  EVENT_DELETED
+  EVENT_PUBLISHED
+  EVENT_CANCELLED
+  
+  // Registration Actions
+  REGISTRATION_APPROVED
+  REGISTRATION_REJECTED
+  REGISTRATION_CANCELLED
+  REGISTRATION_CHECKED_IN
+  
+  // Payment Actions
+  PAYMENT_RECEIVED
+  REFUND_ISSUED
+  REFUND_REQUESTED
+  
+  // Bracket Actions
+  BRACKET_CREATED
+  BRACKET_STARTED
+  BRACKET_COMPLETED
+  MATCH_UPDATED
+  
+  // Team Actions
+  TEAM_CREATED
+  TEAM_UPDATED
+  TEAM_DELETED
+  MEMBER_ADDED
+  MEMBER_REMOVED
+  
+  // System Actions
+  SYSTEM_ERROR
+  SECURITY_ALERT
+  DATA_EXPORT
+}
+
+// ==========================================
+// Communication System
+// ==========================================
+
+model Notification {
+  id              String   @id @default(cuid())
+  
+  // Notification Details
+  type            NotificationType
+  title           String
+  message         String   @db.Text
+  
+  // Status
+  read            Boolean  @default(false)
+  readAt          DateTime?
+  
+  // Links
+  link            String?  // URL to navigate when clicked
+  
+  // Related Entities
+  eventId         String?
+  registrationId  String?
+  teamId          String?
+  
+  // Metadata
+  metadata        Json?    // Additional data
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  
+  // Relations
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  REGISTRATION_CONFIRMED
+  REGISTRATION_APPROVED
+  REGISTRATION_REJECTED
+  EVENT_REMINDER
+  EVENT_UPDATED
+  EVENT_CANCELLED
+  BRACKET_CREATED
+  MATCH_SCHEDULED
+  MATCH_RESULT
+  TEAM_INVITATION
+  TEAM_ACCEPTED
+  PAYMENT_RECEIVED
+  REFUND_PROCESSED
+  ANNOUNCEMENT
+  SYSTEM
+}
+
+model Announcement {
+  id              String   @id @default(cuid())
+  
+  // Announcement Details
+  title           String
+  content         String   @db.Text
+  priority        AnnouncementPriority @default(NORMAL)
+  
+  // Targeting
+  targetAudience  AnnouncementAudience @default(ALL_USERS)
+  eventId         String?  // If targeted to specific event
+  
+  // Display Settings
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  isActive        Boolean  @default(true)
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  creatorId       String
+  creator         User     @relation("AnnouncementCreator", fields: [creatorId], references: [id])
+  
+  @@index([isActive, startDate, endDate])
+  @@index([eventId])
+  @@map("announcements")
+}
+
+enum AnnouncementPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum AnnouncementAudience {
+  ALL_USERS
+  ADMINS_ONLY
+  ORGANIZERS
+  EVENT_PARTICIPANTS
+  REGISTERED_USERS
+}
+
+model EmailTemplate {
+  id              String   @id @default(cuid())
+  
+  // Template Details
+  name            String   @unique
+  subject         String
+  bodyHtml        String   @db.Text
+  bodyText        String   @db.Text
+  
+  // Template Variables (for documentation)
+  variables       Json?    // List of available variables
+  
+  // Status
+  isActive        Boolean  @default(true)
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@map("email_templates")
+}
+
+model EmailLog {
+  id              String   @id @default(cuid())
+  
+  // Email Details
+  to              String
+  from            String
+  subject         String
+  template        String?  // Template name if used
+  
+  // Status
+  status          EmailStatus @default(PENDING)
+  error           String?
+  
+  // Provider Info
+  provider        String?  // e.g., "resend", "sendgrid"
+  providerId      String?  // External email ID
+  
+  // Metadata
+  metadata        Json?
+  
+  // Timestamps
+  createdAt       DateTime @default(now())
+  sentAt          DateTime?
+  
+  @@index([to])
+  @@index([status])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
 }

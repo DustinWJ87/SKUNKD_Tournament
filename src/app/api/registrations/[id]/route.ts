@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { createNotification } from "@/lib/notifications"
+import { sendRegistrationApproval, sendEmail } from "@/lib/email"
+import { createAuditLog, getRequestInfo } from "@/lib/audit"
 
 export async function PATCH(
   request: NextRequest,
@@ -26,6 +29,11 @@ export async function PATCH(
 
     // Build update data
     const updateData: any = {}
+    
+    const oldStatus = await prisma.eventRegistration.findUnique({
+      where: { id: registrationId },
+      select: { status: true, userId: true, eventId: true },
+    })
     
     if (status) updateData.status = status
     if (paymentStatus) updateData.paymentStatus = paymentStatus
@@ -54,6 +62,79 @@ export async function PATCH(
         },
       },
     })
+
+    // Send notifications and emails if status changed
+    if (status && oldStatus && oldStatus.status !== status) {
+      const userName = updatedRegistration.user.name || updatedRegistration.user.username
+      const eventName = updatedRegistration.event.name
+
+      if (status === "APPROVED") {
+        // Send approval notification
+        await createNotification({
+          userId: updatedRegistration.userId,
+          type: "REGISTRATION_APPROVED",
+          title: "Registration Approved!",
+          message: `Your registration for ${eventName} has been approved. You're all set!`,
+          link: `/events/${updatedRegistration.eventId}`,
+          eventId: updatedRegistration.eventId,
+          registrationId: updatedRegistration.id,
+        })
+
+        // Send approval email
+        await sendRegistrationApproval(
+          updatedRegistration.user.email,
+          userName,
+          eventName,
+          updatedRegistration.eventId
+        )
+      } else if (status === "REJECTED") {
+        // Send rejection notification
+        await createNotification({
+          userId: updatedRegistration.userId,
+          type: "REGISTRATION_REJECTED",
+          title: "Registration Not Approved",
+          message: `Unfortunately, your registration for ${eventName} was not approved.`,
+          link: `/events/${updatedRegistration.eventId}`,
+          eventId: updatedRegistration.eventId,
+          registrationId: updatedRegistration.id,
+        })
+
+        // Send rejection email
+        await sendEmail({
+          to: updatedRegistration.user.email,
+          subject: `Registration Update - ${eventName}`,
+          template: "registration_rejected",
+          variables: {
+            userName,
+            eventName,
+            eventUrl: `${process.env.NEXTAUTH_URL}/events/${updatedRegistration.eventId}`,
+          },
+        })
+      }
+
+      // Create audit log
+      const { ipAddress, userAgent } = getRequestInfo(request)
+      await createAuditLog({
+        action: status === "APPROVED" ? "REGISTRATION_APPROVED" : "REGISTRATION_REJECTED",
+        entityType: "EventRegistration",
+        entityId: registrationId,
+        userId: user.id,
+        userName: user.name || user.username,
+        userRole: user.role,
+        changes: {
+          status: {
+            from: oldStatus.status,
+            to: status,
+          },
+        },
+        metadata: {
+          eventName: updatedRegistration.event.name,
+          userName,
+        },
+        ipAddress,
+        userAgent,
+      })
+    }
 
     return NextResponse.json(updatedRegistration)
   } catch (error) {

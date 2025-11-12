@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { createAuditLog, getRequestInfo } from "@/lib/audit"
 
 export async function PATCH(
   request: NextRequest,
@@ -34,6 +35,16 @@ export async function PATCH(
       return NextResponse.json({ error: "Invalid role" }, { status: 400 })
     }
 
+    // Get current user data for audit log
+    const currentUser = await prisma.user.findUnique({
+      where: { id: targetUserId },
+      select: { role: true, name: true },
+    })
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
     // Update user role
     const updatedUser = await prisma.user.update({
       where: { id: targetUserId },
@@ -45,6 +56,28 @@ export async function PATCH(
         email: true,
         role: true,
       },
+    })
+
+    // Create audit log
+    const { ipAddress, userAgent } = getRequestInfo(request)
+    await createAuditLog({
+      action: "USER_ROLE_CHANGED",
+      entityType: "User",
+      entityId: targetUserId,
+      userId: user.id,
+      userName: user.name || user.username,
+      userRole: user.role,
+      changes: {
+        role: {
+          from: currentUser.role,
+          to: role,
+        },
+      },
+      metadata: {
+        targetUserName: currentUser.name,
+      },
+      ipAddress,
+      userAgent,
     })
 
     return NextResponse.json(updatedUser)

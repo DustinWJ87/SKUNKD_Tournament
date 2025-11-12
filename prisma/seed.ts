@@ -13,6 +13,7 @@ async function main() {
   await prisma.bracket.deleteMany()
   await prisma.seatReservation.deleteMany()
   await prisma.seat.deleteMany()
+  await prisma.transaction.deleteMany()
   await prisma.teamMember.deleteMany()
   await prisma.team.deleteMany()
   await prisma.eventRegistration.deleteMany()
@@ -46,7 +47,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'FragMaster99',
-        bio: 'Competitive FPS player, 5+ years experience',
+        bio: 'Competitive FPS player, 5+ years experience. Specializing in entry fragging and aggressive plays.',
+        discordId: 'FragMaster99#0001',
       },
     }),
     prisma.user.create({
@@ -57,7 +59,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'SniperQueen',
-        bio: 'Precision aiming specialist',
+        bio: 'Precision aiming specialist. Long-range eliminations are my forte.',
+        discordId: 'SniperQueen#0002',
       },
     }),
     prisma.user.create({
@@ -68,7 +71,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'TankDaddy',
-        bio: 'Tank main, team player',
+        bio: 'Tank main, team player. I create space so my team can shine.',
+        discordId: 'TankDaddy#0003',
       },
     }),
     prisma.user.create({
@@ -79,7 +83,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'HealBot3000',
-        bio: 'Support player, keeping the team alive',
+        bio: 'Support player, keeping the team alive. Healing is life.',
+        discordId: 'HealBot3000#0004',
       },
     }),
     prisma.user.create({
@@ -90,7 +95,8 @@ async function main() {
         password: userPassword,
         role: 'ORGANIZER',
         gamerTag: 'EventMaster',
-        bio: 'Professional tournament organizer',
+        bio: 'Professional tournament organizer with 10+ years experience running esports events.',
+        discordId: 'EventMaster#0005',
       },
     }),
     prisma.user.create({
@@ -101,7 +107,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'SpeedDemon',
-        bio: 'Fast reflexes, faster wins',
+        bio: 'Fast reflexes, faster wins. Speed is the name of the game.',
+        discordId: 'SpeedDemon#0006',
       },
     }),
     prisma.user.create({
@@ -112,7 +119,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'StrategyKing',
-        bio: 'Big brain plays only',
+        bio: 'Big brain plays only. I outsmart, not outgun.',
+        discordId: 'StrategyKing#0007',
       },
     }),
     prisma.user.create({
@@ -123,7 +131,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'ClutchMaster',
-        bio: '1v5? No problem',
+        bio: '1v5? No problem. Clutch situations are where I thrive.',
+        discordId: 'ClutchMaster#0008',
       },
     }),
     prisma.user.create({
@@ -134,7 +143,8 @@ async function main() {
         password: userPassword,
         role: 'PLAYER',
         gamerTag: 'HeadshotOnly',
-        bio: 'Aim is everything',
+        bio: 'Aim is everything. Every shot counts, every shot lands.',
+        discordId: 'HeadshotOnly#0009',
       },
     }),
   ])
@@ -408,6 +418,22 @@ async function main() {
     },
   })
 
+  // Create transaction for registration1
+  await prisma.transaction.create({
+    data: {
+      type: 'REGISTRATION_FEE',
+      amount: 25.00,
+      currency: 'USD',
+      provider: 'stripe',
+      providerId: 'pi_' + Math.random().toString(36).substring(7),
+      status: 'COMPLETED',
+      userId: users[0].id,
+      eventId: event1.id,
+      registrationId: registration1.id,
+      completedAt: new Date(),
+    },
+  })
+
   // Pending registration
   const registration3 = await prisma.eventRegistration.create({
     data: {
@@ -462,6 +488,22 @@ async function main() {
       },
     })
     registrations.push(reg)
+    
+    // Create transaction for each paid registration
+    await prisma.transaction.create({
+      data: {
+        type: 'REGISTRATION_FEE',
+        amount: 15.00,
+        currency: 'USD',
+        provider: 'stripe',
+        providerId: 'pi_' + Math.random().toString(36).substring(7),
+        status: 'COMPLETED',
+        userId: users[i].id,
+        eventId: event3.id,
+        registrationId: reg.id,
+        completedAt: new Date(),
+      },
+    })
   }
 
   // Create a bracket for the Rocket League tournament with matches
@@ -655,10 +697,13 @@ async function main() {
   console.log(`- Events: 5 (4 upcoming, 1 past)`)
   console.log(`- Teams: 1`)
   console.log(`- Registrations: ${2 + registrations.length} (including bracket participants)`)
+  console.log(`- Transactions: 9 (1 Winter Championship + 8 Rocket League)`)
   console.log(`- Brackets: 1 (8-player single elimination)`)
   console.log(`- Bracket Matches: 7 (3 completed, 1 in progress, 3 pending)`)
   console.log(`- Seats: 232 total across all events`)
   console.log(`- Seat Reservations: 2`)
+  console.log('\n💰 Revenue Summary:')
+  console.log(`- Total Revenue: $${25 + (15 * 8)} ($25 from CS2 + $120 from Rocket League)`)
   console.log('\n🎮 Bracket Demo:')
   console.log(`Event: ${event3.name}`)
   console.log('Status: Quarterfinals in progress!')

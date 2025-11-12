@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 
-// GET /api/teams - Get user's teams
+// GET /api/teams - Get user's teams (or all teams for admin)
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,22 +14,26 @@ export async function GET(request: NextRequest) {
 
     const user = session.user as any
     const userId = user.id
+    const isAdmin = user.role === "ADMIN" || user.role === "ORGANIZER"
 
-    // Get all teams where user is a member
+    // Admin/Organizer can see all teams, regular users only see their teams
     const teams = await prisma.team.findMany({
-      where: {
-        members: {
-          some: {
-            userId: userId,
+      where: isAdmin
+        ? {} // No filter for admin - return all teams
+        : {
+            members: {
+              some: {
+                userId: userId,
+              },
+            },
           },
-        },
-      },
       include: {
         creator: {
           select: {
             id: true,
             username: true,
             name: true,
+            email: true,
           },
         },
         members: {

@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden - Admin access required" }, { status: 403 })
     }
 
+    console.log('Fetching users from database...')
+
     // Fetch all users with their registration counts
     const users = await prisma.user.findMany({
       select: {
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
         _count: {
           select: {
             registrations: true,
-            teamMembers: true,
+            teamMemberships: true,
           },
         },
       },
@@ -41,11 +43,13 @@ export async function GET(request: NextRequest) {
       },
     })
 
+    console.log('Users fetched successfully:', users.length)
+
     return NextResponse.json(users)
   } catch (error) {
     console.error("Error fetching users:", error)
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      { error: "Failed to fetch users", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
